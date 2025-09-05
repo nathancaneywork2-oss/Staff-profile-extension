@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Staff Profile Generator",
+  "version": "1.0",
+  "description": "Makes good things happen.",
+  "permissions": ["tabs"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.vantage-modules.co.uk/*"],
+      "js": [
+      	"libs/html2pdf.bundle.min.js",
+      	"content.js"
+      ]
+    }
+  ]
+}
