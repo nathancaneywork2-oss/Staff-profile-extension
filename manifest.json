@@ -8,9 +8,15 @@
     {
       "matches": ["https://www.vantage-modules.co.uk/*"],
       "js": [
-      	"libs/html2pdf.bundle.min.js",
-      	"content.js"
+        "libs/html2pdf.bundle.min.js",
+        "content.js"
       ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["Images/Elborough.png"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

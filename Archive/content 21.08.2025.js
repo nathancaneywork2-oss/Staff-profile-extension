@@ -5,7 +5,29 @@ setTimeout(()=> {
     const buttonContainer = document.querySelector('.FormHeaderControlsBarNonSaveButtons')
 
     if (buttonContainer) {
-        const extensionButton = `<button style="background: rgb(255,255,255); border-radius: 3px;" class="FormButton extensionButton"><i class="fa-regular fa-file-lines"></i>Staff Profile</button>`
+        const extensionButton = `
+		<style>
+			.extensionButton{
+				background: rgb(255,255,255);
+				border-radius: 3px;
+				transform: translateY(15px) scale(0.9);
+    				animation: fadePopIn 0.5s ease-out forwards;
+			}	
+  			
+			@keyframes fadePopIn {
+    			0% {
+			      opacity: 0;
+			      transform: translateY(15px) scale(0.9);
+			    }
+ 		       100% {
+ 			     opacity: 1;
+			      transform: translateY(0px) scale(1);
+			    }
+		       }
+		</style>
+
+		<button class="FormButton extensionButton"><i class="fa-regular fa-file-lines"></i>Staff Profile</button>
+	`
 
         const hasExtensionButton = buttonContainer.querySelector('.extensionButton') !== null;
 
@@ -33,7 +55,7 @@ setTimeout(()=> {
 		    
 		    var mostRecentPhotoDate = ''
 		    var workPermitRequired = ''
-	            var workPermitCheckedDate = ''
+	        var workPermitCheckedDate = ''
 
  		    setTimeout(() => {
 		       //Get the upload date of the most recent photo
@@ -245,7 +267,7 @@ setTimeout(()=> {
 		    `
 		    document.body.insertAdjacentHTML('beforeend', loadingHTML)
 
-            	    setTimeout(() => {
+            setTimeout(() => {
 			
 		    document.querySelector('.loadingDiv').remove()
 
@@ -486,8 +508,8 @@ setTimeout(()=> {
 
                             .label {
                                 background-color: rgb(203, 203, 203);
-				font-weight: normal;
-				color: rgb(0, 0, 0);
+                                font-weight: normal;
+                                color: rgb(0, 0, 0);
                                 font-size: 11px;
                                 width: 105px;
                                 border: 1px solid #000;
@@ -495,9 +517,9 @@ setTimeout(()=> {
 
                             .profile__dateBox{
                                 background-color: rgb(203, 203, 203);
-				font-size: 11px;
+                                font-size: 11px;
                                 border: 1px solid #000;
-				border-radius: 0;
+                                border-radius: 0;
                             }
 
                             .signature {
@@ -533,12 +555,12 @@ setTimeout(()=> {
 
                                 <div class="profile__titleDiv">
                                     <p class="profile__titleLogo">Elborough
-					<svg class="profile__oSvg" version="1.1" xmlns="http://www.w3.org/2000/svg" >
-						<path d="M0 0 C3.86098204 2.03579053 6.94245885 4.10150099 9 8 C9.95481924 12.16335597 10.3687605 15.8937185 9 20 C9 20.99 9 21.98 9 23 						C6.29196906 27.16620145 3.65156533 	29.2670639 -1 31 C-7.48759465 31.99809148 -12.78067392 29.74883769 -18 26 C-21.0073055 								22.39277167 -22.19779914 18.52356024 -22.5 13.875 C-21.77552393 8.26031049 -19.57662691 	5.42280965 -15.4375 1.6875 								C-10.40473736 -1.79672029 -5.76841857 -1.16805983 0 0 Z M-11.6875 6.5 C-14.54646745 10.16579262 -14.76386816 13.43478438 -15 18 C-14.34 						18 -13.68 	18 -13 18 C-13 18.66 -13 19.32 -13 20 C-9.29398698 22.47067534 -5.30359093 22.70018741 -1 22 C1.82370995 20.31778982 							3.40718704 19.01126916 5.0625 16.1875 C4.95813456 12.53470973 	3.23849087 9.7663738 1 7 C-3.70892185 3.9588213 -7.21535668 								2.33986668 -11.6875 6.5 Z " fill="#05A9B7" transform="translate(22,1)"/>
-						<path d="M0 0 C2.59623818 2.00522461 4.43954784 4.1122667 6 7 C6.375 10.4375 6.375 10.4375 6 13 C5.5875 12.4225 5.175 11.845 4.75 11.25 						C1.05622693 6.43204633 1.05622693 	6.43204633 -4.4375 4.0625 C-9.28458025 3.9774635 -11.34629673 5.40535756 -14.75 8.6875 								C-16.89326373 12.65253791 -17.66612741 16.74704678 -16.38671875 21.07421875 C-15.66882779 	22.75156588 -14.84280701 24.38181053 -14 						26 C-17.30901116 24.9730655 -18.0219638 23.96077893 -19.75 20.875 C-21.32009851 16.70252828 -21.4937144 13.44342959 -21 9 								C-16.27590785 -0.09825154 -9.60347485 -3.85445589 0 0 Z " fill="#3852A0" transform="translate(21,2)"/>
-						<path d="M0 0 C0.66 0.33 1.32 0.66 2 1 C1.2884375 1.7115625 1.2884375 1.7115625 0.5625 2.4375 C-1.64660603 6.06043388 -2.15627043 							9.7732569 -2 14 C-1.11797224 	16.57608109 -0.44571113 17.69967104 1.8203125 19.2265625 C6.23904486 20.79449979 11.58386932 21.08972424 						15.9140625 19.13671875 C17.70096582 17.96274076 17.70096582 17.96274076 	20 16 C20.66 15.67 21.32 15.34 22 15 C20.56179187 							20.03372844 18.09754485 21.98955889 14 25 C9.29477445 26.56840852 5.47351184 26.54895539 0.8125 24.8125 C-2.82422058 									22.46883563 -5.28746181 20.36211291 -6.5703125 16.109375 C-7.44704041 11.22208323 -6.79210353 8.236295 -4 4 C-1.8125 1.625 -1.8125 1.625 0 						0 Z " fill="#73BA3D" 	transform="translate(10,6)"/>
-					</svg>
-				    </p>
+                                        <svg class="profile__oSvg" version="1.1" xmlns="http://www.w3.org/2000/svg" >
+                                            <path d="M0 0 C3.86098204 2.03579053 6.94245885 4.10150099 9 8 C9.95481924 12.16335597 10.3687605 15.8937185 9 20 C9 20.99 9 21.98 9 23 						C6.29196906 27.16620145 3.65156533 	29.2670639 -1 31 C-7.48759465 31.99809148 -12.78067392 29.74883769 -18 26 C-21.0073055 								22.39277167 -22.19779914 18.52356024 -22.5 13.875 C-21.77552393 8.26031049 -19.57662691 	5.42280965 -15.4375 1.6875 								C-10.40473736 -1.79672029 -5.76841857 -1.16805983 0 0 Z M-11.6875 6.5 C-14.54646745 10.16579262 -14.76386816 13.43478438 -15 18 C-14.34 						18 -13.68 	18 -13 18 C-13 18.66 -13 19.32 -13 20 C-9.29398698 22.47067534 -5.30359093 22.70018741 -1 22 C1.82370995 20.31778982 							3.40718704 19.01126916 5.0625 16.1875 C4.95813456 12.53470973 	3.23849087 9.7663738 1 7 C-3.70892185 3.9588213 -7.21535668 								2.33986668 -11.6875 6.5 Z " fill="#05A9B7" transform="translate(22,1)"/>
+                                            <path d="M0 0 C2.59623818 2.00522461 4.43954784 4.1122667 6 7 C6.375 10.4375 6.375 10.4375 6 13 C5.5875 12.4225 5.175 11.845 4.75 11.25 						C1.05622693 6.43204633 1.05622693 	6.43204633 -4.4375 4.0625 C-9.28458025 3.9774635 -11.34629673 5.40535756 -14.75 8.6875 								C-16.89326373 12.65253791 -17.66612741 16.74704678 -16.38671875 21.07421875 C-15.66882779 	22.75156588 -14.84280701 24.38181053 -14 						26 C-17.30901116 24.9730655 -18.0219638 23.96077893 -19.75 20.875 C-21.32009851 16.70252828 -21.4937144 13.44342959 -21 9 								C-16.27590785 -0.09825154 -9.60347485 -3.85445589 0 0 Z " fill="#3852A0" transform="translate(21,2)"/>
+                                            <path d="M0 0 C0.66 0.33 1.32 0.66 2 1 C1.2884375 1.7115625 1.2884375 1.7115625 0.5625 2.4375 C-1.64660603 6.06043388 -2.15627043 							9.7732569 -2 14 C-1.11797224 	16.57608109 -0.44571113 17.69967104 1.8203125 19.2265625 C6.23904486 20.79449979 11.58386932 21.08972424 						15.9140625 19.13671875 C17.70096582 17.96274076 17.70096582 17.96274076 	20 16 C20.66 15.67 21.32 15.34 22 15 C20.56179187 							20.03372844 18.09754485 21.98955889 14 25 C9.29477445 26.56840852 5.47351184 26.54895539 0.8125 24.8125 C-2.82422058 									22.46883563 -5.28746181 20.36211291 -6.5703125 16.109375 C-7.44704041 11.22208323 -6.79210353 8.236295 -4 4 C-1.8125 1.625 -1.8125 1.625 0 						0 Z " fill="#73BA3D" 	transform="translate(10,6)"/>
+                                        </svg>
+                                    </p>
 
                                     <h1 class="profile__title">Staff Profile</h1>
                                     <p class="profile__titleLogo invisible">Elborough</p>
@@ -599,11 +621,11 @@ setTimeout(()=> {
                                     </tr>
                                     <tr>
                                         <td class="profile__secondColumn" >Current visa/status check and verified:</td>
-                                        <td class="profile__thirdColumn">Yes</td>
+                                        <td class="profile__thirdColumn">${(['British', 'Irish', 'Scottish', 'Northern Irish'].includes(nationality.trim()) ? 'N/A' : 'Yes')}</td>
                                     </tr>
                                     <tr>
                                         <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
+                                        <td class="profile__thirdColumn">${(['British', 'Irish', 'Scottish', 'Northern Irish'].includes(nationality.trim()) ? '' : `${workPermitCheckedDate}`)}</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -646,159 +668,159 @@ setTimeout(()=> {
                                         <td class="profile__thirdColumn"></td>
                                     </tr>
                                     <tr>
-                                        <td class="profile__secondColumn" >Date checked:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >CV / application on file: </td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<td class="profile__secondColumn" >Date checked:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >CV / application on file: </td>
+<td class="profile__thirdColumn"></td>
+</tr>
+</tbody>
+</table>
 
-                                <table class="profile__modularTable">
-                                    <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="5">Enhanced DBS certificate details</td>
-                                        <td class="profile__secondColumn" >DBS Number:</td>
-                                        <td class="profile__thirdColumn">${dbs}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >DBS Issue Date:</td>
-                                        <td class="profile__thirdColumn">${dbsIssueDate}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >DBS Check Date:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Disclosures on enhanced DBS cert:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<table class="profile__modularTable">
+<tbody>
+<tr>
+<td class="profile__headerRow" rowspan="5">Enhanced DBS certificate details</td>
+<td class="profile__secondColumn" >DBS Number:</td>
+<td class="profile__thirdColumn">${dbs}</td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >DBS Issue Date:</td>
+<td class="profile__thirdColumn">${dbsIssueDate}</td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >DBS Check Date:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Disclosures on enhanced DBS cert:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+</tbody>
+</table>
 
-                                <table class="profile__modularTable">
-                                    <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="6">Driving Check</td>
-                                        <td class="profile__secondColumn" >Driving licence seen and verified</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Business Insurance seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >MOT seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<table class="profile__modularTable">
+<tbody>
+<tr>
+<td class="profile__headerRow" rowspan="6">Driving Check</td>
+<td class="profile__secondColumn" >Driving licence seen and verified</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Date seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Business Insurance seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Date seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >MOT seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Date seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+</tbody>
+</table>
 
-                                <table class="profile__modularTable">
-                                    <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="2">Police check (when applicable)</td>
-                                        <td class="profile__secondColumn" >Police check seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn">Date seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<table class="profile__modularTable">
+<tbody>
+<tr>
+<td class="profile__headerRow" rowspan="2">Police check (when applicable)</td>
+<td class="profile__secondColumn" >Police check seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn">Date seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+</tbody>
+</table>
 
-                                <table class="profile__modularTable">
-                                    <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="5">Professional Registration and qualifications</td>
-                                        <td class="profile__secondColumn" >Pin Number:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >PIN Number seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >PIN number expire date:</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Any existing undertakings/conditions with the NMC or review of fitness to practice?</td>
-                                        <td class="profile__thirdColumn"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<table class="profile__modularTable">
+<tbody>
+<tr>
+<td class="profile__headerRow" rowspan="5">Professional Registration and qualifications</td>
+<td class="profile__secondColumn" >Pin Number:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >PIN Number seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Date seen and verified:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >PIN number expire date:</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+<tr>
+<td class="profile__secondColumn" >Any existing undertakings/conditions with the NMC or review of fitness to practice?</td>
+<td class="profile__thirdColumn"></td>
+</tr>
+</tbody>
+</table>
 
-                                <div class="profile__mandatoryRow">Mandatory skills training record</div>
+<div class="profile__mandatoryRow">Mandatory skills training record</div>
 
-                                <table class="profile_trainingTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Name of the training</th>
-                                            <th>Provider</th>
-                                            <th>Date Completed</th>
-                                            <th>Expire Date</th>
-                                        </tr>
-                                    </thead>
+<table class="profile_trainingTable">
+<thead>
+<tr>
+<th>Name of the training</th>
+<th>Provider</th>
+<th>Date Completed</th>
+<th>Expire Date</th>
+</tr>
+</thead>
                                 
-                                    <tbody>
-                                        <tr> <td>Basic Life Support Adults</td> <td>${blsProvider}</td> <td>${blsCompletionDate}</td> <td>${blsExpireDate}</td> </tr>
-                                        <tr> <td>Basic Life Support Paediatrics</td> <td>${plsProvider}</td> <td>${plsCompletionDate}</td> <td>${plsExpireDate}</td> </tr>
-                                        <tr> <td>Moving &amp; Handling</td> <td>${mhProvider}</td> <td>${mhCompletionDate}</td> <td>${mhExpireDate}</td> </tr>
-                                        <tr> <td>Safeguarding Children</td> <td>${cplProvider}</td> <td>${cplCompletionDate}</td> <td>${cplExpireDate}</td> </tr>
-                                        <tr> <td>Food Hygiene</td> <td>${foodProvider}</td> <td>${foodCompletionDate}</td> <td>${foodExpireDate}</td> </tr>
-                                        <tr> <td>Epilepsy Awareness</td> <td>${epilepsyProvider}</td> <td>${epilepsyCompletionDate}</td> <td>${epilepsyExpireDate}</td> </tr>
-                                        <tr> <td>County Lines and Knife Crime</td> <td>${countyProvider}</td> <td>${countyCompletionDate}</td> <td>${countyExpireDate}</td> </tr>
-                                        <tr> <td>Child Sexual Exploitation</td> <td>${cseProvider}</td> <td>${cseCompletionDate}</td> <td>${cseExpireDate}</td> </tr>
-                                        <tr> <td>Substance Misuse</td> <td>${substanceProvider}</td> <td>${substanceCompletionDate}</td> <td>${substanceExpireDate}</td> </tr>
-                                        <tr> <td>Medication</td> <td>${medProvider}</td> <td>${medCompletionDate}</td> <td>${medExpireDate}</td> </tr>
-                                        <tr> <td>Oliver McGowan</td> <td>${omProvider}</td> <td>${omCompletionDate}</td> <td>${omExpireDate}</td> </tr>
-                                        <tr> <td>De-escalation/Physical Intervention</td> <td>${PMVAProvider}</td> <td>${PMVACompletionDate}</td> <td>${PMVAExpireDate}</td> </tr>
-                                    </tbody>
-                                </table>
+<tbody>
+<tr> <td>Basic Life Support Adults</td> <td>${blsProvider}</td> <td>${blsCompletionDate}</td> <td>${blsExpireDate}</td> </tr>
+<tr> <td>Basic Life Support Paediatrics</td> <td>${plsProvider}</td> <td>${plsCompletionDate}</td> <td>${plsExpireDate}</td> </tr>
+<tr> <td>Moving &amp; Handling</td> <td>${mhProvider}</td> <td>${mhCompletionDate}</td> <td>${mhExpireDate}</td> </tr>
+<tr> <td>Safeguarding Children</td> <td>${cplProvider}</td> <td>${cplCompletionDate}</td> <td>${cplExpireDate}</td> </tr>
+<tr> <td>Food Hygiene</td> <td>${foodProvider}</td> <td>${foodCompletionDate}</td> <td>${foodExpireDate}</td> </tr>
+<tr> <td>Epilepsy Awareness</td> <td>${epilepsyProvider}</td> <td>${epilepsyCompletionDate}</td> <td>${epilepsyExpireDate}</td> </tr>
+<tr> <td>County Lines and Knife Crime</td> <td>${countyProvider}</td> <td>${countyCompletionDate}</td> <td>${countyExpireDate}</td> </tr>
+<tr> <td>Child Sexual Exploitation</td> <td>${cseProvider}</td> <td>${cseCompletionDate}</td> <td>${cseExpireDate}</td> </tr>
+<tr> <td>Substance Misuse</td> <td>${substanceProvider}</td> <td>${substanceCompletionDate}</td> <td>${substanceExpireDate}</td> </tr>
+<tr> <td>Medication</td> <td>${medProvider}</td> <td>${medCompletionDate}</td> <td>${medExpireDate}</td> </tr>
+<tr> <td>Oliver McGowan</td> <td>${omProvider}</td> <td>${omCompletionDate}</td> <td>${omExpireDate}</td> </tr>
+<tr> <td>De-escalation/Physical Intervention</td> <td>${PMVAProvider}</td> <td>${PMVACompletionDate}</td> <td>${PMVAExpireDate}</td> </tr>
+</tbody>
+</table>
 
-                                <div class="profile__endPar">
-                                    The above-named worker has undergone all the necessary and appropriate pre-employment screening checks
-                                    as required to ensure their compliance prior to supply and have completed the necessary training. 
-                                </div>
+<div class="profile__endPar">
+The above-named worker has undergone all the necessary and appropriate pre-employment screening checks
+as required to ensure their compliance prior to supply and have completed the necessary training. 
+</div>
 
-                                <table class="profile__completionTable">
-                                    <tbody>
-                                    <tr class="profile__completionTable-row">
-                                        <td class="label">Profile completed by</td>
-                                        <td colspan="3">Nathan Caney</td>
-                                    </tr>
-                                    <tr class="profile__completionTable-row">
-                                        <td class="label">Signature</td>
-                                        <td class="signature">N Caney</td>
-                                        <td class="profile__dateBox">Date</td>
-                                        <td>19/08/2025</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+<table class="profile__completionTable">
+<tbody>
+<tr class="profile__completionTable-row">
+<td class="label">Profile completed by</td>
+<td colspan="3">Nathan Caney</td>
+</tr>
+<tr class="profile__completionTable-row">
+<td class="label">Signature</td>
+<td class="signature">N Caney</td>
+<td class="profile__dateBox">Date</td>
+<td>19/08/2025</td>
+</tr>
+</tbody>
+</table>
 
-                                </div>
-                            </div>
-                        </div>
+</div>
+</div>
+</div>
                     `
                     document.body.insertAdjacentHTML('beforeend', profileHTML)
                 
