@@ -37,6 +37,9 @@ var substanceCompletionDate = ''
 var PMVACompletionDate = ''
 var omCompletionDate = ''
 
+//Other global variables
+var profileHTML = ''
+
 setTimeout(()=> {
     var firstName = '' 
     var surname = ''
@@ -515,7 +518,6 @@ setTimeout(()=> {
 
                             //Get the NMC referalls text
                             nmcReferals = nmcSectionSpans.find(e => e.textContent.trim() === 'Any existing undertakings/conditions with the NMC or review of fitness to practice?').closest('.form-control-group').querySelector('.text-field').value
-                            console.log(nmcReferals);
                             
                         }, 100)
                         
@@ -757,7 +759,7 @@ setTimeout(()=> {
                         }
 
                         100%{
-                            background-color: rgb(0, 0, 0, 0.5);
+                            background-color: rgba(0, 0, 0, 0.5);
                             backdrop-filter: blur(5px);
                         }
                     }
@@ -778,7 +780,7 @@ setTimeout(()=> {
 			
 		    document.querySelector('.loadingDiv').remove()
 
-		    const profileHTML = `
+		    profileHTML = `
                 <style>
                     .profile__background{
                         z-index: 9999999;
@@ -792,11 +794,11 @@ setTimeout(()=> {
 
                     @keyframes fadeinPage{
                         0%{
-                            background-color: rgb(255, 255, 255, 0.5);
+                            background-color: rgba(255, 255, 255, 0.5);
                             transform: scale(0.7);
                         }
                         100%{
-                            background-color: rgb(255, 255, 255, 1);
+                            background-color: rgba(255, 255, 255, 1);
                             transform: scale(1);
                         }
                     }
@@ -817,7 +819,7 @@ setTimeout(()=> {
                         display: block;
                         width: 55px;
                         height: 55px;
-                        background: rgb(255, 255, 255, 0.9);
+                        background: rgba(255, 255, 255, 0.9);
                         border: none;
                         border-radius: 100%;
                         transition: all 0.2s;
@@ -829,18 +831,18 @@ setTimeout(()=> {
                         width: 55px;
                         height: 55px;
                         font-size: 20px;
-                        background: rgb(255, 255, 255, 0.9);
+                        background: rgba(255, 255, 255, 0.9);
                         border: none;
                         border-radius: 100%;
                         transition: all 0.2s;
                     }
 
                     .profile__downloadButton:hover{
-                        background: rgb(255, 255, 255, 1);
+                        background: rgba(255, 255, 255, 1);
                     }
 
                     .profile__s2Button:hover{
-                        background: rgb(255, 255, 255, 1);
+                        background: rgba(255, 255, 255, 1);
                     }
 
                     .profile__page {
@@ -931,7 +933,6 @@ setTimeout(()=> {
 
                     .profile__nameDiv{
                         border: 1px solid #000;
-                        //height: 118px;
                         display: flex;
                         flex-direction: row;
                         justify-content: start;
@@ -1486,12 +1487,12 @@ setTimeout(()=> {
         })
 
         //S2 button click
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.profile__s2Button')) {
-                const profilePage = document.querySelector('.profile__page')
-                profilePage.classList.add('expanded')
+        document.addEventListener('click', (e) => {         
+            const profilePage = document.querySelector('.profile__page')
+            if (profilePage) {
+                if (e.target.classList.contains('profile__s2Button') && !e.target.classList.contains('closeButton')) {
 
-                if (profilePage) {
+                    profilePage.classList.add('expanded')
                     profilePage.innerHTML = `
                         <style>
                             .s2__row{
@@ -1501,21 +1502,21 @@ setTimeout(()=> {
                                 justify-content: start;
                                 margin-top: 20px;
                             }
-
+    
                             .s2__copyButton-one, .s2__copyButton-two{
                                 margin: 1rem auto;
                                 display: block;
                                 width: 50px;
                                 height: 50px;
-                                background: rgb(0, 0, 0, 0.2);
+                                background: rgba(0, 0, 0, 0.2);
                                 border: none;
                                 border-radius: 100%;
                                 transition: all 0.2s;
                                 margin: 0 20px;
                             }
-
+    
                             .s2__copyButton-one:hover, .s2__copyButton-one:hover{
-                                background: rgb(0, 0, 0, 0.1);
+                                background: rgba(0, 0, 0, 0.1);
                             }
                             
                             .s2__tableOne tbody tr td, .s2__tableTwo tbody tr td{
@@ -1526,10 +1527,10 @@ setTimeout(()=> {
                             }
                             
                         </style>
-
+    
                         <div class="s2__row">
                             <button class="s2__copyButton-one">Copy</button>
-
+    
                             <table class="s2__tableOne">
                                 <tbody>
                                     <tr>
@@ -1547,10 +1548,10 @@ setTimeout(()=> {
                                 </tbody>
                             </table>
                         </div>
-
+    
                         <div class="s2__row">
                             <button class="s2__copyButton-two">Copy</button>
-
+    
                             <table class="s2__tableTwo">
                                 <tbody>
                                     <tr>
@@ -1577,9 +1578,22 @@ setTimeout(()=> {
                             </table>
                         </div>
                     `
+                    e.target.innerText = 'X'
+                    e.target.classList.add('closeButton')
+                    
+                } else if(e.target.classList.contains('profile__s2Button') && e.target.classList.contains('closeButton')){
+                    const testHTML = `<div> Yes </div>`
+                    profilePage.classList.remove('expanded')
+                    // profilePage.innerHTML = testHTML
+                    profilePage.innerHTML = profileHTML
+
+                    e.target.innerText = 'S2'
+                    e.target.classList.remove('closeButton')
+
                 }
                 
             }
+               
 
         })
         
