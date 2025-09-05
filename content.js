@@ -23,7 +23,8 @@ var medCompletionYear = ''
 var medCompletionDate = ''
 var dbs = ''
 var dbsIssueDate = ''
-
+var blsType = 'Basic Life Support Adults'
+var plsType = 'Basic Life Support Paediatrics'
 var blsCompletionDate = ''
 var plsCompletionDate = ''
 var cplCompletionDate = ''
@@ -530,22 +531,50 @@ setTimeout(()=> {
             const tableElementsArray = Array.from(tableElements)
 
             //Get the values for Basic Life Support Adults
-            const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults'|| e.textContent.trim() === 'ILS Adults (Practical)')
-            const blsParentCell = blsCell.parentElement.parentElement
-            const blsParentCellArray = Array.from(blsParentCell.children)
-            const blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
-            blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
+            let blsProvider = ''
+            let blsExpireDate = ''
+            if (tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults')) {
+                const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults')
+                const blsParentCell = blsCell.parentElement.parentElement
+                const blsParentCellArray = Array.from(blsParentCell.children)
+                blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
+                blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
+
+            } else if(tableElementsArray.find(e => e.textContent.trim() === 'ILS Adults (Practical)')){
+                blsType = 'ILS Adults'
+                const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'ILS Adults (Practical)')
+                const blsParentCell = blsCell.parentElement.parentElement
+                const blsParentCellArray = Array.from(blsParentCell.children)
+                blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
+                blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
+            }
     
             //Get the values for Basic Life Support Paediatrics
-            const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics' || e.textContent.trim() === 'ILS Paediatrics (Practical)')
-            const plsParentCell = plsCell.parentElement.parentElement
-            const plsParentCellArray = Array.from(plsParentCell.children)
-            const plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
-            plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
+            let plsProvider = ''
+            let plsExpireDate = ''
+            if (tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics')) {
+                const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics')
+                const plsParentCell = plsCell.parentElement.parentElement
+                const plsParentCellArray = Array.from(plsParentCell.children)
+                plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
+                plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
+
+            } else if(tableElementsArray.find(e => e.textContent.trim() === 'ILS Paediatrics (Practical)')) {
+                plsType = 'ILS Paediatrics'
+                const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'ILS Paediatrics (Practical)')
+                const plsParentCell = plsCell.parentElement.parentElement
+                const plsParentCellArray = Array.from(plsParentCell.children)
+                plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
+                plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
+            }
 
             //Get the values for Medication (practical), if it doesn't exist, then use Medication Online instead.
             const practicalMedCell = tableElementsArray.find(e => e.textContent.trim() === 'Medication (practical)')
@@ -1315,8 +1344,8 @@ setTimeout(()=> {
                                 </thead>
                                                     
                                 <tbody>
-                                    <tr> <td>Basic Life Support Adults</td> <td>${blsProvider}</td> <td>${blsCompletionDate}</td> <td>${blsExpireDate}</td> </tr>
-                                    <tr> <td>Basic Life Support Paediatrics</td> <td>${plsProvider}</td> <td>${plsCompletionDate}</td> <td>${plsExpireDate}</td> </tr>
+                                    <tr> <td>${blsType}</td> <td>${blsProvider}</td> <td>${blsCompletionDate}</td> <td>${blsExpireDate}</td> </tr>
+                                    <tr> <td>${plsType}</td> <td>${plsProvider}</td> <td>${plsCompletionDate}</td> <td>${plsExpireDate}</td> </tr>
                                     <tr> <td>Moving &amp; Handling</td> <td>${mhProvider}</td> <td>${mhCompletionDate}</td> <td>${mhExpireDate}</td> </tr>
                                     <tr> <td>Safeguarding Children</td> <td>${cplProvider}</td> <td>${cplCompletionDate}</td> <td>${cplExpireDate}</td> </tr>
                                     <tr> <td>Epilepsy Awareness</td> <td>${epilepsyProvider}</td> <td>${epilepsyCompletionDate}</td> <td>${epilepsyExpireDate}</td> </tr>
@@ -1389,7 +1418,7 @@ setTimeout(()=> {
 
         //Close the staff profile when clicking outside of it
         document.addEventListener('click', (e)=>{
-            if (e.target.classList.contains('profile__mask') || e.target.classList.contains('profile__background') || e.target.contains('.profile__buttonsContainer')) {
+            if (e.target.classList.contains('profile__mask') || e.target.classList.contains('profile__background') || e.target.classList.contains('.profile__buttonsContainer')) {
                 const mask = document.querySelector('.profile__mask')
                 const background = document.querySelector('.profile__background')
                 mask.remove()
