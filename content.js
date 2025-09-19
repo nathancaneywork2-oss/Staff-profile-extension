@@ -18,27 +18,101 @@ var pinSeen = ''
 var revalidationDate = ''
 var nmcReferals = ''
 var medProvider = ''
-var medExpireDate = ''
-var medCompletionYear = ''
-var medCompletionDate = ''
+
 var dbs = ''
 var dbsIssueDate = ''
+
 var blsType = 'Basic Life Support Adults'
 var plsType = 'Basic Life Support Paediatrics'
 var blsCompletionDate = ''
 var plsCompletionDate = ''
+
+var medExpireDate = ''
+var medCompletionYear = ''
+var medCompletionDate = ''
+
+var cplProvider = ''
 var cplCompletionDate = ''
+var cplExpireDate = ''
+
+var foodProvider = ''
 var foodCompletionDate = ''
+var foodExpireDate = ''
+
+var mhProvider =''
 var mhCompletionDate = ''
+var mhExpireDate = ''
+
+var epilepsyProvider = ''
 var epilepsyCompletionDate = ''
+var epilepsyExpireDate = ''
+
+var countyProvider = ''
 var countyCompletionDate = ''
+var countyExpireDate = ''
+
+var cseProvider = ''
 var cseCompletionDate = ''
+var cseExpireDate = ''
+
+var substanceProvider = ''
 var substanceCompletionDate = ''
+var substanceExpireDate = ''
+
+var PMVAProvider = ''
 var PMVACompletionDate = ''
+var PMVAExpireDate = ''
+
+var omProvider = ''
 var omCompletionDate = ''
+var omExpireDate = ''
 
 //Other global variables
 var profileHTML = ''
+
+//Helper function for displaying error or success messages on the page
+function displayMessage(type, text){
+    //Type 0 is a success message, anything else is an error message
+
+    const messageElement = `
+        <style>
+            .imGreat{
+                transform: translateY(15px) scale(0.9);
+                animation: fadePopInOut 2.5s ease-out forwards;
+            }	
+
+            @keyframes fadePopInOut {
+                0% {
+                    opacity: 0;
+                    transform: translateY(15px) scale(0.9);
+                }
+                15% {
+                    opacity: 1;
+                    transform: translateY(0px) scale(1);
+                }
+                85% {
+                    opacity: 1;
+                    transform: translateY(0px) scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(15px) scale(0.9);
+                }
+            }
+        </style>
+
+        <div id="toast-container" class="toast-bottom-right imGreat">
+            <div class="toast ${type == 0 ? 'toast-success' : 'toast-error'}" style="">
+                <div class="toast-message">${text}</div>
+            </div>
+        </div>
+    `
+    document.body.insertAdjacentHTML('beforeend', messageElement)
+    
+    if (type != 0) {
+        throw new Error(text)
+    }
+}
 
 setTimeout(()=> {
     var firstName = '' 
@@ -71,9 +145,7 @@ setTimeout(()=> {
 		<button class="FormButton OpenRecordButton extensionButton"><i class="fa-regular fa-file-lines"></i>Staff Profile</button>
 	    `
 
-        const hasExtensionButton = buttonContainer.querySelector('.extensionButton') !== null;
-
-        if (!hasExtensionButton) {
+        if (buttonContainer.querySelector('.extensionButton') == null) {
             buttonContainer.insertAdjacentHTML('afterbegin', extensionButton)    
         }
 
@@ -125,6 +197,16 @@ setTimeout(()=> {
                         mostRecentImageUrl = mostRecent.imageUrl;   
                     }
 
+                    //If the Photograph Expiry input has been filled in, then the mostRecentPhotoDate is this minus 3 years.
+                    const rightToWorkDocumentationTextContainerDivs = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Right to Work Documentation').closest('.FormFieldVisible').querySelectorAll('span'))
+                    const photographExpiryTextContainer = rightToWorkDocumentationTextContainerDivs.find(e => e.textContent.trim() =='Photograph Expiry (3 yearly)').closest('.control-group')
+                    const photoExpiryInputValue = photographExpiryTextContainer.querySelector('.input-small').value
+                    if (photoExpiryInputValue.length > 8) {
+                        const photoExpiryYear = parseInt(photoExpiryInputValue.substring(6,10))
+                        const photoTakenYear = photoExpiryYear - 3
+                        mostRecentPhotoDate = `${photoExpiryInputValue.substring(0, 6)}${photoTakenYear}`
+                    }
+                    
 
                     //Check if a work permit is required
                     const rtwText = spansArray.find(e => e.textContent.trim() === 'Right to work check Expiry')
@@ -175,7 +257,7 @@ setTimeout(()=> {
                     .sort((a, b) => b - a)[0]
                     .toLocaleDateString('en-GB')
                     
-                }, 100)
+                }, 200)
 
                 //Expand the most recent Proof of address Documentation section
                 const poaDocumentationDiv = allElementsArray.find(e => e.textContent.trim() === 'Proof of address Documentation')
@@ -185,49 +267,59 @@ setTimeout(()=> {
                 
                 //Wait for the right to work section to finish being clicked on
                 setTimeout(() => {
-                    poaButton.click()  
-                }, 150);
+                    poaButton.click() 
 
-                //Give the proof of address section time to expand
-                setTimeout(() => {
-                    //Get the most recent Document 1 uploaded date
-                    const poaDocumentationContainerContainer = poaDocumentationContainer.closest('.FormField')   
-                    const poaSpans = Array.from(poaDocumentationContainerContainer.querySelectorAll('span'))
-                    
-                    const poaDocOneText = poaSpans.find(e => e.textContent.trim() === 'Document 1')
-                    const poaDocOneContainer = poaDocOneText.closest('.form-control-group')
-                    const poaDocOneUploadedDatesArray = Array.from(poaDocOneContainer.querySelectorAll('.FileUploadListItemTimestamp'))
-                    const poaDocOneDates = []
-                    poaDocOneUploadedDatesArray.forEach((uploadedDate) => {
-                        poaDocOneDates.push(uploadedDate.textContent.replaceAll('Uploaded on ', ''))
-                    })
+                    //Give the proof of address section time to expand
+                    setTimeout(() => {
+                        //Get the most recent Document 1 uploaded date
+                        const poaDocumentationContainerContainer = poaDocumentationContainer.closest('.FormField')   
+                        const poaSpans = Array.from(poaDocumentationContainerContainer.querySelectorAll('span'))
+                        
+                        const poaDocOneText = poaSpans.find(e => e.textContent.trim() === 'Document 1')
+                        const poaDocOneContainer = poaDocOneText.closest('.form-control-group')
+                        const poaDocOneUploadedDatesArray = Array.from(poaDocOneContainer.querySelectorAll('.FileUploadListItemTimestamp'))
+                        if (poaDocOneUploadedDatesArray.length > 0) {
+                            const poaDocOneDates = []
+                            poaDocOneUploadedDatesArray.forEach((uploadedDate) => {
+                                poaDocOneDates.push(uploadedDate.textContent.replaceAll('Uploaded on ', ''))
+                            })
+        
+                            poaDocOneUploadedDate = poaDocOneDates
+                            .map((date) => {
+                                const [day, month, year] = date.split('/')
+                                return new Date(`${year}-${month}-${day}`)
+                            })
+                            .sort((a, b) => b - a)[0]
+                            .toLocaleDateString('en-GB')
+                        } else{
+                            displayMessage(1, 'Missing proof of address 1')
+                        }
+    
+                        //Get the most recent Document 2 uploaded date
+                        const poaDocTwoText = poaSpans.find(e => e.textContent.trim() === 'Document 1')
+                        const poaDocTwoContainer = poaDocTwoText.closest('.form-control-group')
+                        const poaDocTwoUploadedDatesArray = Array.from(poaDocTwoContainer.querySelectorAll('.FileUploadListItemTimestamp'))
+                        if (poaDocTwoUploadedDatesArray.length > 0) {
+                            const poaDocTwoDates = []
+                            poaDocTwoUploadedDatesArray.forEach((uploadedDate) => {
+                                poaDocTwoDates.push(uploadedDate.textContent.replaceAll('Uploaded on ', ''))
+                            })
+        
+                            poaDocTwoUploadedDate = poaDocTwoDates
+                            .map((date) => {
+                                const [day, month, year] = date.split('/')
+                                return new Date(`${year}-${month}-${day}`)
+                            })
+                            .sort((a, b) => b - a)[0]
+                            .toLocaleDateString('en-GB')
+                        } else {
+                            displayMessage(1, 'Missing proof of address 2')
+                        }
+                        
+                    }, 200)
 
-                    poaDocOneUploadedDate = poaDocOneDates
-                    .map((date) => {
-                        const [day, month, year] = date.split('/')
-                        return new Date(`${year}-${month}-${day}`)
-                    })
-                    .sort((a, b) => b - a)[0]
-                    .toLocaleDateString('en-GB')
+                }, 250)
 
-                    //Get the most recent Document 2 uploaded date
-                    const poaDocTwoText = poaSpans.find(e => e.textContent.trim() === 'Document 1')
-                    const poaDocTwoContainer = poaDocTwoText.closest('.form-control-group')
-                    const poaDocTwoUploadedDatesArray = Array.from(poaDocTwoContainer.querySelectorAll('.FileUploadListItemTimestamp'))
-                    const poaDocTwoDates = []
-                    poaDocTwoUploadedDatesArray.forEach((uploadedDate) => {
-                        poaDocTwoDates.push(uploadedDate.textContent.replaceAll('Uploaded on ', ''))
-                    })
-
-                    poaDocTwoUploadedDate = poaDocTwoDates
-                    .map((date) => {
-                        const [day, month, year] = date.split('/')
-                        return new Date(`${year}-${month}-${day}`)
-                    })
-                    .sort((a, b) => b - a)[0]
-                    .toLocaleDateString('en-GB')
-                    
-                }, 200);
 
                 //Expand the DBS section
                 //Wait for the proof of address section to finish being clicked on before clicking on the DBS
@@ -237,224 +329,229 @@ setTimeout(()=> {
                     const dbsDocumentationContainer = dbsDocumentationDiv.closest('.FormHeader');
                     const dbsDocumentationElement = dbsDocumentationContainer.querySelectorAll('.SubformSummaryItem');
                     const dbsButton = dbsDocumentationElement[dbsDocumentationElement.length - 1].querySelector('.SummaryTableCell');
-                    dbsButton.click();
-                }, 250);
+                    dbsButton.click()
 
-                //Give the DBS section time to expand
-                setTimeout(() => {
-                    //Get the most recent DBS update service check date
-                    const dbsText = spansArray.find(e => e.textContent.trim() === 'DBS update service check')
-                    const container = dbsText.closest('.form-control-group')
+                    //Give the DBS section time to expand
+                    setTimeout(() => {
+                        //Get the most recent DBS update service check date
+                        const dbsText = spansArray.find(e => e.textContent.trim() === 'DBS update service check')
+                        const container = dbsText.closest('.form-control-group')
+                    
+                        const dbsContainerArray = Array.from(container.querySelectorAll('.thumbnail'))
+                        var dbsDates = []
+    
+                        if (dbsContainerArray.length > 0) {
+                            dbsContainerArray.forEach((dbsContainer) => {
+                                const dbsDateText = dbsContainer.querySelector('.FileUploadListItemTimestamp').innerText.replaceAll('Uploaded on ', '')
+                                dbsDates.push(dbsDateText)
+                            })
                 
-                    const dbsContainerArray = Array.from(container.querySelectorAll('.thumbnail'))
-                    var dbsDates = []
-
-                    if (dbsContainerArray.length > 0) {
-                        dbsContainerArray.forEach((dbsContainer) => {
-                            const dbsDateText = dbsContainer.querySelector('.FileUploadListItemTimestamp').innerText.replaceAll('Uploaded on ', '')
-                            dbsDates.push(dbsDateText)
-                        })
+                            dbsUpdateMostRecentDate = dbsDates
+                            .map((date) => {
+                                const [day, month, year] = date.split('/')
+                                return new Date(`${year}-${month}-${day}`)
+                            })
+                            .sort((a, b) => b - a)[0]
+                            .toLocaleDateString('en-GB')
+                        }
+    
+    
+                        //Get the most recent overseas police check
+                        const ospcText = spansArray.find(e => e.textContent.trim() === 'Overseas police check (only if applicable)')
+                        const ospcTextContainer = ospcText.closest('.form-control-group')
+                        const ospcContainer = ospcTextContainer.querySelectorAll('.thumbnail')
+    
+                        if (ospcContainer.length > 0) {
+                                
+                            const ospcContainerArray = Array.from(ospcContainer)
+                            var ospcDates = []
+    
+                            ospcContainerArray.forEach((ospcContainer) => {
+                                const ospcDateText = ospcContainer.querySelector('.FileUploadListItemTimestamp').innerText.replaceAll('Uploaded on ', '')
+                                ospcDates.push(ospcDateText)
+                            })
+                
+                            ospcUpdateMostRecentDate = ospcDates
+                            .map((date) => {
+                                const [day, month, year] = date.split('/')
+                                return new Date(`${year}-${month}-${day}`)
+                            })
+                            .sort((a, b) => b - a)[0]
+                            .toLocaleDateString('en-GB')
             
-                        dbsUpdateMostRecentDate = dbsDates
-                        .map((date) => {
-                            const [day, month, year] = date.split('/')
-                            return new Date(`${year}-${month}-${day}`)
-                        })
-                        .sort((a, b) => b - a)[0]
-                        .toLocaleDateString('en-GB')
-                    }
+                        }
+    
+                    }, 200)
 
+                }, 350)
 
-                    //Get the most recent overseas police check
-                    const ospcText = spansArray.find(e => e.textContent.trim() === 'Overseas police check (only if applicable)')
-                    const ospcTextContainer = ospcText.closest('.form-control-group')
-                    const ospcContainer = ospcTextContainer.querySelectorAll('.thumbnail')
-
-                    if (ospcContainer.length > 0) {
-                            
-                        const ospcContainerArray = Array.from(ospcContainer)
-                        var ospcDates = []
-
-                        ospcContainerArray.forEach((ospcContainer) => {
-                            const ospcDateText = ospcContainer.querySelector('.FileUploadListItemTimestamp').innerText.replaceAll('Uploaded on ', '')
-                            ospcDates.push(ospcDateText)
-                        })
-            
-                        ospcUpdateMostRecentDate = ospcDates
-                        .map((date) => {
-                            const [day, month, year] = date.split('/')
-                            return new Date(`${year}-${month}-${day}`)
-                        })
-                        .sort((a, b) => b - a)[0]
-                        .toLocaleDateString('en-GB')
-        
-                    }
-
-                }, 300);
 
                 //Drivers Documentation section, this is already expanded by default, but we'll have to expand 4 things inside it.
                 //Wait for the DBS section to finish being clicked on before moving on to this.
                 setTimeout(() => {
                     allElementsArray = Array.from(document.querySelectorAll('*')) // It's good to requery this from time to time
                     const driversDocumentationDiv = allElementsArray.find(e => e.textContent.trim() === 'Drivers Documentation')
-                    const driversDocumentationContainer = driversDocumentationDiv.closest('.FormHeader')
-                    const driversDocumentationExpandButtons = Array.from(driversDocumentationContainer.querySelectorAll('.SummaryTableCellInner'))
-
-                    var drivingLicenseExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'Driving license')
-                    var carInsuranceExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'Car business insurance')
-                    var motExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'MOT test check')
-                    var dvlaExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'DVLA check')
-                    var carTaxExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'Car Tax')
-
-                    //We only want to continue if all 5 documents are uploaded
-                    if (drivingLicenseExpandButton && carInsuranceExpandButton && motExpandButton && dvlaExpandButton && carTaxExpandButton) {
-                        // Get expiry dates as strings
-                        const drivingLicenseExpireDate = drivingLicenseExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
-                        const carInsuranceExpireDate = carInsuranceExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
-                        const motExpireDate = motExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
-                        const dvlaExpireDate = dvlaExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
-                        const carTaxExpireDate = carTaxExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
-
-                        // Helper to parse dd/mm/yyyy to Date
-                        function parseUKDate(dateStr) {
-                            const [day, month, year] = dateStr.split('/');
-                            return new Date(`${year}-${month}-${day}`);
-                        }
-
-                        // Today's date at midnight
-                        const today = new Date();
-                        today.setHours(0,0,0,0);
-
-                        // Parse all dates
-                        const allDates = [
-                            parseUKDate(drivingLicenseExpireDate),
-                            parseUKDate(carInsuranceExpireDate),
-                            parseUKDate(motExpireDate),
-                            parseUKDate(dvlaExpireDate),
-                            parseUKDate(carTaxExpireDate)
-                        ];
-
-                        // Only click if all dates are today or in the future
-                        if (allDates.every(date => date >= today)) {
-                            drivingLicenseExpandButton.click()
-                            
+                    if (driversDocumentationDiv) {
                         
-                            //Give the driving license section time to expand
-                            setTimeout(() => {
-                                //Get the driving license check date
-                                let driversChecksDiv = allElementsArray.find(e => e.textContent.trim() === 'Driving Checks')
-                                let driversChecksContainer = driversChecksDiv.closest('.FormHeader')
-                                let driversChecksExpandButtons = Array.from(driversChecksContainer.querySelectorAll('.SummaryTableCellInner'))
-
-                                // Find the button with the farthest future date
-                                let farthestButton = null
-                                let farthestDate = null
-
-                                driversChecksExpandButtons.forEach(btn => {
-                                    const dateMatch = btn.textContent.trim().match(/^(\d{2}\/\d{2}\/\d{4})$/);
-                                    if (dateMatch) {
-                                        const date = parseUKDate(dateMatch[1]);
-                                        if (!farthestDate || date > farthestDate) {
-                                            farthestDate = date
-                                            farthestButton = btn
+                        const driversDocumentationContainer = driversDocumentationDiv.closest('.FormHeader')
+                        const driversDocumentationExpandButtons = Array.from(driversDocumentationContainer.querySelectorAll('.SummaryTableCellInner'))
+    
+                        var drivingLicenseExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'Driving license')
+                        var carInsuranceExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'Car business insurance')
+                        var motExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'MOT test check')
+                        var dvlaExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'DVLA check')
+                        var carTaxExpandButton = driversDocumentationExpandButtons.find(e => e.textContent.trim() == 'Car Tax')
+    
+                        //We only want to continue if all 5 documents are uploaded
+                        if (drivingLicenseExpandButton && carInsuranceExpandButton && motExpandButton && dvlaExpandButton && carTaxExpandButton) {
+                            // Get expiry dates as strings
+                            const drivingLicenseExpireDate = drivingLicenseExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
+                            const carInsuranceExpireDate = carInsuranceExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
+                            const motExpireDate = motExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
+                            const dvlaExpireDate = dvlaExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
+                            const carTaxExpireDate = carTaxExpandButton.parentElement.parentElement.querySelectorAll('.SummaryTableCellInner')[1].textContent;
+    
+                            // Helper to parse dd/mm/yyyy to Date
+                            function parseUKDate(dateStr) {
+                                const [day, month, year] = dateStr.split('/');
+                                return new Date(`${year}-${month}-${day}`);
+                            }
+    
+                            // Today's date at midnight
+                            const today = new Date();
+                            today.setHours(0,0,0,0);
+    
+                            // Parse all dates
+                            const allDates = [
+                                parseUKDate(drivingLicenseExpireDate),
+                                parseUKDate(carInsuranceExpireDate),
+                                parseUKDate(motExpireDate),
+                                parseUKDate(dvlaExpireDate),
+                                parseUKDate(carTaxExpireDate)
+                            ];
+    
+                            // Only click if all dates are today or in the future
+                            if (allDates.every(date => date >= today)) {
+                                drivingLicenseExpandButton.click()
+                                
+                            
+                                //Give the driving license section time to expand
+                                setTimeout(() => {
+                                    //Get the driving license check date
+                                    let driversChecksDiv = allElementsArray.find(e => e.textContent.trim() === 'Driving Checks')
+                                    let driversChecksContainer = driversChecksDiv.closest('.FormHeader')
+                                    let driversChecksExpandButtons = Array.from(driversChecksContainer.querySelectorAll('.SummaryTableCellInner'))
+    
+                                    // Find the button with the farthest future date
+                                    let farthestButton = null
+                                    let farthestDate = null
+    
+                                    driversChecksExpandButtons.forEach(btn => {
+                                        const dateMatch = btn.textContent.trim().match(/^(\d{2}\/\d{2}\/\d{4})$/);
+                                        if (dateMatch) {
+                                            const date = parseUKDate(dateMatch[1]);
+                                            if (!farthestDate || date > farthestDate) {
+                                                farthestDate = date
+                                                farthestButton = btn
+                                            }
                                         }
+                                    })
+    
+                                    if (farthestButton) {
+                                        farthestButton.click()
+                                        
+                                        //Give the button time to expand
+                                        setTimeout(() => {
+                                            const driversCheckSectionSpans = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Driving Checks').closest('.Subform').querySelectorAll('span'))
+                                            drivingLicenseSeenDate = driversCheckSectionSpans.find(e => e.textContent === 'Date of Check').closest('.control-group').querySelector('.input-small').value
+                                            
+                                            //Fully requery the insurance button before clicking on it, it won't find it otherwise.
+                                            carInsuranceExpandButton = Array.from(Array.from(document.querySelectorAll('*')).find(e => e.textContent.trim() === 'Drivers Documentation').closest('.FormHeader').querySelectorAll('.SummaryTableCellInner')).find(e => e.textContent.trim() == 'Car business insurance')
+                                            carInsuranceExpandButton.click()
+                                        }, 300)
                                     }
-                                });
-
-                                if (farthestButton) {
-                                    farthestButton.click()
-                                    
-                                    //Give the button time to expand
+    
+                                    //Get the insurance check date
+                                    //Give the insurance section time to expand
                                     setTimeout(() => {
-                                        const driversCheckSectionSpans = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Driving Checks').closest('.Subform').querySelectorAll('span'))
-                                        drivingLicenseSeenDate = driversCheckSectionSpans.find(e => e.textContent === 'Date of Check').closest('.control-group').querySelector('.input-small').value
-                                        
-                                        //Fully requery the insurance button before clicking on it, it won't find it otherwise.
-                                        carInsuranceExpandButton = Array.from(Array.from(document.querySelectorAll('*')).find(e => e.textContent.trim() === 'Drivers Documentation').closest('.FormHeader').querySelectorAll('.SummaryTableCellInner')).find(e => e.textContent.trim() == 'Car business insurance')
-                                        carInsuranceExpandButton.click()
-                                    }, 300);
-                                }
-
-                                //Get the insurance check date
-                                //Give the insurance section time to expand
-                                setTimeout(() => {
-                                    driversChecksDiv = allElementsArray.find(e => e.textContent.trim() === 'Driving Checks')
-                                    driversChecksContainer = driversChecksDiv.closest('.FormHeader')
-                                    driversChecksExpandButtons = Array.from(driversChecksContainer.querySelectorAll('.SummaryTableCellInner'))
-
-                                    // Find the button with the farthest future date
-                                    farthestButton = null
-                                    farthestDate = null
-
-                                    driversChecksExpandButtons.forEach(btn => {
-                                        const dateMatch = btn.textContent.trim().match(/^(\d{2}\/\d{2}\/\d{4})$/);
-                                        if (dateMatch) {
-                                            const date = parseUKDate(dateMatch[1]);
-                                            if (!farthestDate || date > farthestDate) {
-                                                farthestDate = date
-                                                farthestButton = btn
+                                        driversChecksDiv = allElementsArray.find(e => e.textContent.trim() === 'Driving Checks')
+                                        driversChecksContainer = driversChecksDiv.closest('.FormHeader')
+                                        driversChecksExpandButtons = Array.from(driversChecksContainer.querySelectorAll('.SummaryTableCellInner'))
+    
+                                        // Find the button with the farthest future date
+                                        farthestButton = null
+                                        farthestDate = null
+    
+                                        driversChecksExpandButtons.forEach(btn => {
+                                            const dateMatch = btn.textContent.trim().match(/^(\d{2}\/\d{2}\/\d{4})$/);
+                                            if (dateMatch) {
+                                                const date = parseUKDate(dateMatch[1]);
+                                                if (!farthestDate || date > farthestDate) {
+                                                    farthestDate = date
+                                                    farthestButton = btn
+                                                }
                                             }
-                                        }
-                                    });
-
-                                    if (farthestButton) {
-                                        farthestButton.click()
-                                        
-                                        //Give the button time to expand
-                                        setTimeout(() => {
-                                            const driversCheckSectionSpans = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Driving Checks').closest('.Subform').querySelectorAll('span'))
-                                            businessInsuranceSeenDate = driversCheckSectionSpans.find(e => e.textContent === 'Date of Check').closest('.control-group').querySelector('.input-small').value
+                                        });
+    
+                                        if (farthestButton) {
+                                            farthestButton.click()
                                             
-                                            //Fully requery the MOT button before clicking on it, it won't find it otherwise.
-                                            motExpandButton = Array.from(Array.from(document.querySelectorAll('*')).find(e => e.textContent.trim() === 'Drivers Documentation').closest('.FormHeader').querySelectorAll('.SummaryTableCellInner')).find(e => e.textContent.trim() == 'MOT test check')
-                                            motExpandButton.click()
-                                        }, 100);
-                                    }
-
-                                }, 500)
-
-                                //Get the MOT check date
-                                //Give the MOT section time to expand
-                                setTimeout(() => {
-                                    driversChecksDiv = allElementsArray.find(e => e.textContent.trim() === 'Driving Checks')
-                                    driversChecksContainer = driversChecksDiv.closest('.FormHeader')
-                                    driversChecksExpandButtons = Array.from(driversChecksContainer.querySelectorAll('.SummaryTableCellInner'))
-
-                                    // Find the button with the farthest future date
-                                    farthestButton = null
-                                    farthestDate = null
-
-                                    driversChecksExpandButtons.forEach(btn => {
-                                        const dateMatch = btn.textContent.trim().match(/^(\d{2}\/\d{2}\/\d{4})$/);
-                                        if (dateMatch) {
-                                            const date = parseUKDate(dateMatch[1]);
-                                            if (!farthestDate || date > farthestDate) {
-                                                farthestDate = date
-                                                farthestButton = btn
+                                            //Give the button time to expand
+                                            setTimeout(() => {
+                                                const driversCheckSectionSpans = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Driving Checks').closest('.Subform').querySelectorAll('span'))
+                                                businessInsuranceSeenDate = driversCheckSectionSpans.find(e => e.textContent === 'Date of Check').closest('.control-group').querySelector('.input-small').value
+                                                
+                                                //Fully requery the MOT button before clicking on it, it won't find it otherwise.
+                                                motExpandButton = Array.from(Array.from(document.querySelectorAll('*')).find(e => e.textContent.trim() === 'Drivers Documentation').closest('.FormHeader').querySelectorAll('.SummaryTableCellInner')).find(e => e.textContent.trim() == 'MOT test check')
+                                                motExpandButton.click()
+                                            }, 100);
+                                        }
+    
+                                    }, 500)
+    
+                                    //Get the MOT check date
+                                    //Give the MOT section time to expand
+                                    setTimeout(() => {
+                                        driversChecksDiv = allElementsArray.find(e => e.textContent.trim() === 'Driving Checks')
+                                        driversChecksContainer = driversChecksDiv.closest('.FormHeader')
+                                        driversChecksExpandButtons = Array.from(driversChecksContainer.querySelectorAll('.SummaryTableCellInner'))
+    
+                                        // Find the button with the farthest future date
+                                        farthestButton = null
+                                        farthestDate = null
+    
+                                        driversChecksExpandButtons.forEach(btn => {
+                                            const dateMatch = btn.textContent.trim().match(/^(\d{2}\/\d{2}\/\d{4})$/);
+                                            if (dateMatch) {
+                                                const date = parseUKDate(dateMatch[1]);
+                                                if (!farthestDate || date > farthestDate) {
+                                                    farthestDate = date
+                                                    farthestButton = btn
+                                                }
                                             }
-                                        }
-                                    });
-
-                                    if (farthestButton) {
-                                        farthestButton.click()
-                                        
-                                        //Give the button time to expand
-                                        setTimeout(() => {
-                                            const driversCheckSectionSpans = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Driving Checks').closest('.Subform').querySelectorAll('span'))
-                                            motSeenDate = driversCheckSectionSpans.find(e => e.textContent === 'Date of Check').closest('.control-group').querySelector('.input-small').value
+                                        });
+    
+                                        if (farthestButton) {
+                                            farthestButton.click()
                                             
-                                        }, 200);
-                                    }
-
-                                }, 800)
-
-
-                            }, 300)
-                        } 
-
+                                            //Give the button time to expand
+                                            setTimeout(() => {
+                                                const driversCheckSectionSpans = Array.from(allElementsArray.find(e => e.textContent.trim() === 'Driving Checks').closest('.Subform').querySelectorAll('span'))
+                                                motSeenDate = driversCheckSectionSpans.find(e => e.textContent === 'Date of Check').closest('.control-group').querySelector('.input-small').value
+                                                
+                                            }, 200);
+                                        }
+    
+                                    }, 800)
+    
+    
+                                }, 300)
+                            } 
+    
+                        }
                     }
 
-                }, 400)
+                }, 500)
 
                 // Get the values for the easy ones that don't need me to click on anything
                 firstName = spansArray.find(e => e.textContent.trim() === 'First Name').closest('.form-control-group').querySelector('.text-field').value
@@ -527,893 +624,931 @@ setTimeout(()=> {
             }
 
             
-        //Get the training dates
-        const tableElements = document.querySelectorAll('.SummaryTableCellInner')
-        if (tableElements) {
-            const tableElementsArray = Array.from(tableElements)
+            //Get the training dates
+            const tableElements = document.querySelectorAll('.SummaryTableCellInner')
+            if (tableElements) {
+                const tableElementsArray = Array.from(tableElements)
 
-            //Get the values for Basic Life Support Adults
-            let blsProvider = ''
-            let blsExpireDate = ''
-            if (tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults')) {
-                const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults')
-                const blsParentCell = blsCell.parentElement.parentElement
-                const blsParentCellArray = Array.from(blsParentCell.children)
-                blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-                blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-                const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
-                blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
+                //Get the values for Basic Life Support Adults
+                let blsProvider = ''
+                let blsExpireDate = ''
+                if (tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults')) {
+                    const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Adults')
+                    const blsParentCell = blsCell.parentElement.parentElement
+                    const blsParentCellArray = Array.from(blsParentCell.children)
+                    blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
+                    blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
 
-            } else if(tableElementsArray.find(e => e.textContent.trim() === 'ILS Adults (Practical)')){
-                blsType = 'ILS Adults'
-                const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'ILS Adults (Practical)')
-                const blsParentCell = blsCell.parentElement.parentElement
-                const blsParentCellArray = Array.from(blsParentCell.children)
-                blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-                blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-                const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
-                blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
-            }
-    
-            //Get the values for Basic Life Support Paediatrics
-            let plsProvider = ''
-            let plsExpireDate = ''
-            if (tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics')) {
-                const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics')
-                const plsParentCell = plsCell.parentElement.parentElement
-                const plsParentCellArray = Array.from(plsParentCell.children)
-                plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-                plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-                const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
-                plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
+                } else if(tableElementsArray.find(e => e.textContent.trim() === 'ILS Adults (Practical)')){
+                    blsType = 'ILS Adults'
+                    const blsCell = tableElementsArray.find(e => e.textContent.trim() === 'ILS Adults (Practical)')
+                    const blsParentCell = blsCell.parentElement.parentElement
+                    const blsParentCellArray = Array.from(blsParentCell.children)
+                    blsProvider = blsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    blsExpireDate = blsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const blsCompletionYear = parseInt(blsExpireDate.substring(6,10)) - 1
+                    blsCompletionDate = blsExpireDate.substring(0,6) + blsCompletionYear
+                }
+        
+                //Get the values for Basic Life Support Paediatrics
+                let plsProvider = ''
+                let plsExpireDate = ''
+                if (tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics')) {
+                    const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'Basic Life Support Paediatrics')
+                    const plsParentCell = plsCell.parentElement.parentElement
+                    const plsParentCellArray = Array.from(plsParentCell.children)
+                    plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
+                    plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
 
-            } else if(tableElementsArray.find(e => e.textContent.trim() === 'ILS Paediatrics (Practical)')) {
-                plsType = 'ILS Paediatrics'
-                const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'ILS Paediatrics (Practical)')
-                const plsParentCell = plsCell.parentElement.parentElement
-                const plsParentCellArray = Array.from(plsParentCell.children)
-                plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-                plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-                const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
-                plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
-            }
+                } else if(tableElementsArray.find(e => e.textContent.trim() === 'ILS Paediatrics (Practical)')) {
+                    plsType = 'ILS Paediatrics'
+                    const plsCell = tableElementsArray.find(e => e.textContent.trim() === 'ILS Paediatrics (Practical)')
+                    const plsParentCell = plsCell.parentElement.parentElement
+                    const plsParentCellArray = Array.from(plsParentCell.children)
+                    plsProvider = plsParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    plsExpireDate = plsParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const plsCompletionYear = parseInt(plsExpireDate.substring(6,10)) - 1
+                    plsCompletionDate = plsExpireDate.substring(0,6) + plsCompletionYear
+                }
 
-            //Get the values for Medication (practical), if it doesn't exist, then use Medication Online instead.
-            const practicalMedCell = tableElementsArray.find(e => e.textContent.trim() === 'Medication (practical)')
-            if (practicalMedCell) {
-                const practicalMedParentCell = practicalMedCell.parentElement.parentElement
-                const practicalMedParentCellArray = Array.from(practicalMedParentCell.children)
-                medProvider = practicalMedParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-                medExpireDate = practicalMedParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-                
-                // Check if the medication practical date has been filled in, if not, use med online dates.
-                if (medExpireDate && medExpireDate.length > 5) {
-                    // Parse medExpireDate (dd/mm/yyyy) to Date
-                    const [day, month, year] = medExpireDate.split('/');
-                    const expireDateObj = new Date(`${year}-${month}-${day}`);
+                //Get the values for Medication (practical), if it doesn't exist, then use Medication Online instead.
+                const practicalMedCell = tableElementsArray.find(e => e.textContent.trim() === 'Medication (practical)')
+                if (practicalMedCell) {
+                    const practicalMedParentCell = practicalMedCell.parentElement.parentElement
+                    const practicalMedParentCellArray = Array.from(practicalMedParentCell.children)
+                    medProvider = practicalMedParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    medExpireDate = practicalMedParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    
+                    // Check if the medication practical date has been filled in, if not, use med online dates.
+                    if (medExpireDate && medExpireDate.length > 5) {
+                        // Parse medExpireDate (dd/mm/yyyy) to Date
+                        const [day, month, year] = medExpireDate.split('/');
+                        const expireDateObj = new Date(`${year}-${month}-${day}`);
 
-                    // Get one month from today
-                    const oneMonthFromToday = new Date();
-                    oneMonthFromToday.setMonth(oneMonthFromToday.getMonth() + 1);
-                    oneMonthFromToday.setHours(0,0,0,0);
+                        // Get one month from today
+                        const oneMonthFromToday = new Date();
+                        oneMonthFromToday.setMonth(oneMonthFromToday.getMonth() + 1);
+                        oneMonthFromToday.setHours(0,0,0,0);
 
-                    // Only use practical medication if it's expiry is further in the future than one month from today
-                    if (expireDateObj > oneMonthFromToday) {
-                        medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 1;
-                        medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear;
+                        // Only use practical medication if it's expiry is further in the future than one month from today
+                        if (expireDateObj > oneMonthFromToday) {
+                            medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 1;
+                            medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear;
+                        } else{
+                            medicationOnline()
+                        }
+
                     } else{
                         medicationOnline()
                     }
-
+                    
                 } else{
                     medicationOnline()
                 }
+            
+                //Function to get the values for Medication Online
+                function medicationOnline() {
+                    const medCell = tableElementsArray.find(e => e.textContent.trim() === 'Medication Online' || e.textContent.trim() === 'Medication Advanced')
+                    const medParentCell = medCell.parentElement.parentElement
+                    const medParentCellArray = Array.from(medParentCell.children)
+                    medProvider = medParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    medExpireDate = medParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 1
+                    medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear                   
+                }
+
+
+                //Get the values for Safeguarding Children
+                const cplCell = tableElementsArray.find(e => e.textContent.trim() === 'Safeguarding Children Level 3')
+                if (cplCell) {
+                    const cplParentCell = cplCell.parentElement.parentElement
+                    const cplParentCellArray = Array.from(cplParentCell.children)
+                    cplProvider = cplParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    cplExpireDate = cplParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const cplCompletionYear = parseInt(cplExpireDate.substring(6,10)) - 1
+                    cplCompletionDate = cplExpireDate.substring(0,6) + cplCompletionYear
+                } else{
+                    displayMessage(1, 'Missing Safeguarding Children Level 3')
+                }
+
+                //Get the values for Food Hygiene
+                const foodCell = tableElementsArray.find(e => e.textContent.trim() === 'Food hygiene')
+                if (foodCell) {
+                    const foodParentCell = foodCell.parentElement.parentElement
+                    const foodParentCellArray = Array.from(foodParentCell.children)
+                    foodProvider = foodParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    foodExpireDate = foodParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const foodCompletionYear = parseInt(foodExpireDate.substring(6,10)) - 1
+                    foodCompletionDate = foodExpireDate.substring(0,6) + foodCompletionYear
+                } else{
+                    displayMessage(1, 'Missing Food Hygiene')
+                }
+
+                //Get the values for Moving and Handling
+                const mhCell = tableElementsArray.find(e => e.textContent.trim() === 'Moving and Handling (Practical)')
+                if (mhCell) {
+                    const mhParentCell = mhCell.parentElement.parentElement
+                    const mhParentCellArray = Array.from(mhParentCell.children)
+                    mhProvider = mhParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    mhExpireDate = mhParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const mhCompletionYear = parseInt(mhExpireDate.substring(6,10)) - 1
+                    mhCompletionDate = mhExpireDate.substring(0,6) + mhCompletionYear
+                } else{
+                    displayMessage(1, 'Missing Moving and Handling (Practical)')
+                }
+
+                //Get the values for Epilepsy Awareness
+                const epilepsyCell = tableElementsArray.find(e => e.textContent.trim() === 'Epilepsy')
+                if (epilepsyCell) {
+                    const epilepsyParentCell = epilepsyCell.parentElement.parentElement
+                    const epilepsyParentCellArray = Array.from(epilepsyParentCell.children)
+                    epilepsyProvider = epilepsyParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    epilepsyExpireDate = epilepsyParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const epilepsyCompletionYear = parseInt(epilepsyExpireDate.substring(6,10)) - 1
+                    epilepsyCompletionDate = epilepsyExpireDate.substring(0,6) + epilepsyCompletionYear
+                } else{
+                    displayMessage(1, 'Missing Epilepsy')
+                }
+
+                //Get the values for County Lines
+                const countyCell = tableElementsArray.find(e => e.textContent.trim() === 'County Lines and knife crime')
+                if (countyCell) {
+                    const countyParentCell = countyCell.parentElement.parentElement
+                    const countyParentCellArray = Array.from(countyParentCell.children)
+                    countyProvider = countyParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    countyExpireDate = countyParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const countyCompletionYear = parseInt(countyExpireDate.substring(6,10)) - 1
+                    countyCompletionDate = countyExpireDate.substring(0,6) + countyCompletionYear
+                } else{
+                    displayMessage(1, 'Missing county lines')
+                }
                 
-            } else{
-                medicationOnline()
-            }
+
+                //Get the values for Child Sexual Exploitation
+                const cseCell = tableElementsArray.find(e => e.textContent.trim() === 'Child sexual exploitation')
+                if (cseCell) {
+                    const cseParentCell = cseCell.parentElement.parentElement
+                    const cseParentCellArray = Array.from(cseParentCell.children)
+                    cseProvider = cseParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    cseExpireDate = cseParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const cseCompletionYear = parseInt(cseExpireDate.substring(6,10)) - 1
+                    cseCompletionDate = cseExpireDate.substring(0,6) + cseCompletionYear 
+                } else{
+                    displayMessage(1, 'Missing CSE')
+                }
+                
+
+                //Get the values for Substance Misuse
+                const substanceCell = tableElementsArray.find(e => e.textContent.trim() === 'Substance Misuse')
+                if (substanceCell) {
+                    const substanceParentCell = substanceCell.parentElement.parentElement
+                    const substanceParentCellArray = Array.from(substanceParentCell.children)
+                    substanceProvider = substanceParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    substanceExpireDate = substanceParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const substanceCompletionYear = parseInt(substanceExpireDate.substring(6,10)) - 1
+                    substanceCompletionDate = substanceExpireDate.substring(0,6) + substanceCompletionYear
+                } else{
+                    displayMessage(1, 'Missing Substance Misuse')   
+                }
+                
+
+                //Get the values for PMVA
+                const PMVACell = tableElementsArray.find(e => e.textContent.trim() === 'PMVA (Practical)')
+                if (PMVACell) {
+                    const PMVAParentCell = PMVACell.parentElement.parentElement
+                    const PMVAParentCellArray = Array.from(PMVAParentCell.children)
+                    PMVAProvider = PMVAParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    PMVAExpireDate = PMVAParentCellArray[3].querySelector('.SummaryTableCellInner').innerText 
+                    if (PMVAExpireDate.length > 5) {
+                        const PMVACompletionYear = parseInt(PMVAExpireDate.substring(6,10)) - 1
+                        PMVACompletionDate = PMVAExpireDate.substring(0,6) + PMVACompletionYear
+                    } 
+                }
+                
+
+                //Get the values for Oliver McGowan
+                const omCell = tableElementsArray.find(e => e.textContent.trim() === 'Oliver McGowan')
+                if (omCell) {
+                    const omParentCell = omCell.parentElement.parentElement
+                    const omParentCellArray = Array.from(omParentCell.children)
+                    omProvider = omParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
+                    omExpireDate = omParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                    const omCompletionYear = parseInt(omExpireDate.substring(6,10)) - 1
+                    omCompletionDate = omExpireDate.substring(0,6) + omCompletionYear
+                }  else {
+                    displayMessage(1, 'Missing: Oliver McGowan') 
+                }
+                
+
+
+                const loadingHTML = `
+                    <style>
+                        .loadingDiv {
+                            height: 600px;
+                            width: 600px;
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            z-index: 9999999;
+                            background: rgb(255,255,255);
+                            border-radius: 10px;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-evenly;
+                            align-items: center;
+                        }
             
-            //Function to get the values for Medication Online
-            function medicationOnline() {
-                const medCell = tableElementsArray.find(e => e.textContent.trim() === 'Medication Online' || e.textContent.trim() === 'Medication Advanced')
-                const medParentCell = medCell.parentElement.parentElement
-                const medParentCellArray = Array.from(medParentCell.children)
-                medProvider = medParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-                medExpireDate = medParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-                medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 1
-                medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear                   
-            }
-
-
-            //Get the values for Safeguarding Children
-            const cplCell = tableElementsArray.find(e => e.textContent.trim() === 'Safeguarding Children Level 3')
-            const cplParentCell = cplCell.parentElement.parentElement
-            const cplParentCellArray = Array.from(cplParentCell.children)
-            const cplProvider = cplParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const cplExpireDate = cplParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const cplCompletionYear = parseInt(cplExpireDate.substring(6,10)) - 1
-            cplCompletionDate = cplExpireDate.substring(0,6) + cplCompletionYear
-
-            //Get the values for Food Hygiene
-            const foodCell = tableElementsArray.find(e => e.textContent.trim() === 'Food hygiene')
-            const foodParentCell = foodCell.parentElement.parentElement
-            const foodParentCellArray = Array.from(foodParentCell.children)
-            const foodProvider = foodParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const foodExpireDate = foodParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const foodCompletionYear = parseInt(foodExpireDate.substring(6,10)) - 1
-            foodCompletionDate = foodExpireDate.substring(0,6) + foodCompletionYear
-
-            //Get the values for Moving and Handling
-            const mhCell = tableElementsArray.find(e => e.textContent.trim() === 'Moving and Handling (Practical)')
-            const mhParentCell = mhCell.parentElement.parentElement
-            const mhParentCellArray = Array.from(mhParentCell.children)
-            const mhProvider = mhParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const mhExpireDate = mhParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const mhCompletionYear = parseInt(mhExpireDate.substring(6,10)) - 1
-            mhCompletionDate = mhExpireDate.substring(0,6) + mhCompletionYear
-
-            //Get the values for Epilepsy Awareness
-            const epilepsyCell = tableElementsArray.find(e => e.textContent.trim() === 'Epilepsy')
-            const epilepsyParentCell = epilepsyCell.parentElement.parentElement
-            const epilepsyParentCellArray = Array.from(epilepsyParentCell.children)
-            const epilepsyProvider = epilepsyParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const epilepsyExpireDate = epilepsyParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const epilepsyCompletionYear = parseInt(epilepsyExpireDate.substring(6,10)) - 1
-            epilepsyCompletionDate = epilepsyExpireDate.substring(0,6) + epilepsyCompletionYear
-
-            //Get the values for County Lines
-            const countyCell = tableElementsArray.find(e => e.textContent.trim() === 'County Lines and knife crime')
-            const countyParentCell = countyCell.parentElement.parentElement
-            const countyParentCellArray = Array.from(countyParentCell.children)
-            const countyProvider = countyParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const countyExpireDate = countyParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const countyCompletionYear = parseInt(countyExpireDate.substring(6,10)) - 1
-            countyCompletionDate = countyExpireDate.substring(0,6) + countyCompletionYear
-
-            //Get the values for Child Sexual Exploitation
-            const cseCell = tableElementsArray.find(e => e.textContent.trim() === 'Child sexual exploitation')
-            const cseParentCell = cseCell.parentElement.parentElement
-            const cseParentCellArray = Array.from(cseParentCell.children)
-            const cseProvider = cseParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const cseExpireDate = cseParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const cseCompletionYear = parseInt(cseExpireDate.substring(6,10)) - 1
-            cseCompletionDate = cseExpireDate.substring(0,6) + cseCompletionYear
-
-            //Get the values for Substance Misuse
-            const substanceCell = tableElementsArray.find(e => e.textContent.trim() === 'Substance Misuse')
-            const substanceParentCell = substanceCell.parentElement.parentElement
-            const substanceParentCellArray = Array.from(substanceParentCell.children)
-            const substanceProvider = substanceParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const substanceExpireDate = substanceParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const substanceCompletionYear = parseInt(substanceExpireDate.substring(6,10)) - 1
-            substanceCompletionDate = substanceExpireDate.substring(0,6) + substanceCompletionYear
-
-            //Get the values for PMVA
-            const PMVACell = tableElementsArray.find(e => e.textContent.trim() === 'PMVA (Practical)')
-            const PMVAParentCell = PMVACell.parentElement.parentElement
-            const PMVAParentCellArray = Array.from(PMVAParentCell.children)
-            const PMVAProvider = PMVAParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const PMVAExpireDate = PMVAParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
+                        .spinner {
+                            width: 80px;
+                            height: 80px;
+                            border: 8px solid #f3f3f3;
+                            border-top: 8px solid #3498db;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                        }
             
-            if (PMVAExpireDate.length > 5) {
-                const PMVACompletionYear = parseInt(PMVAExpireDate.substring(6,10)) - 1
-                PMVACompletionDate = PMVAExpireDate.substring(0,6) + PMVACompletionYear
-            } 
-
-            //Get the values for Oliver McGowan
-            const omCell = tableElementsArray.find(e => e.textContent.trim() === 'Oliver McGowan')
-            const omParentCell = omCell.parentElement.parentElement
-            const omParentCellArray = Array.from(omParentCell.children)
-            const omProvider = omParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
-            const omExpireDate = omParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
-            const omCompletionYear = parseInt(omExpireDate.substring(6,10)) - 1
-            omCompletionDate = omExpireDate.substring(0,6) + omCompletionYear
-
-
-		    const loadingHTML = `
-                <style>
-                    .loadingDiv {
-                        height: 600px;
-                        width: 600px;
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        z-index: 9999999;
-                        background: rgb(255,255,255);
-                        border-radius: 10px;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-evenly;
-                        align-items: center;
-                    }
-        
-                    .spinner {
-                        width: 80px;
-                        height: 80px;
-                        border: 8px solid #f3f3f3;
-                        border-top: 8px solid #3498db;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                    }
-        
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-
-                    .profile__mask{
-                        z-index: 9999999;
-                        width: 100%;
-                        height: 100vh;
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        animation: fadein 2s forwards;
-                    }
-                        
-                    @keyframes fadein{
-                        0%{
-                            background-color: rgb(0, 0, 0, 0);
-                            backdrop-filter: blur(0px);
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
                         }
 
-                        100%{
-                            background-color: rgba(0, 0, 0, 0.5);
-                            backdrop-filter: blur(5px);
+                        .profile__mask{
+                            z-index: 9999999;
+                            width: 100%;
+                            height: 100vh;
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            animation: fadein 2s forwards;
                         }
-                    }
+                            
+                        @keyframes fadein{
+                            0%{
+                                background-color: rgb(0, 0, 0, 0);
+                                backdrop-filter: blur(0px);
+                            }
 
-                </style>
+                            100%{
+                                background-color: rgba(0, 0, 0, 0.5);
+                                backdrop-filter: blur(5px);
+                            }
+                        }
 
-                <div class="profile__mask"> 
-                    <div class="loadingDiv">
-                        <h2>Hang on...</h2>
-                        <div class="spinner"></div>
+                    </style>
+
+                    <div class="profile__mask"> 
+                        <div class="loadingDiv">
+                            <h2>Hang on...</h2>
+                            <div class="spinner"></div>
+                        </div>
                     </div>
-                </div>
 
-		    `
-		    document.body.insertAdjacentHTML('beforeend', loadingHTML)
+                `
+                document.body.insertAdjacentHTML('beforeend', loadingHTML)
 
-            setTimeout(() => {
-			
-		    document.querySelector('.loadingDiv').remove()
+                setTimeout(() => {
+                
+                document.querySelector('.loadingDiv').remove()
 
-		    profileHTML = `
-                <style>
-                    .profile__background{
-                        z-index: 9999999;
-                        width: 100%;
-                        height: 100vh;
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                    }
-
-
-                    @keyframes fadeinPage{
-                        0%{
-                            background-color: rgba(255, 255, 255, 0.5);
-                            transform: scale(0.7);
+                profileHTML = `
+                    <style>
+                        .profile__background{
+                            z-index: 9999999;
+                            width: 100%;
+                            height: 100vh;
+                            position: fixed;
+                            top: 0;
+                            left: 0;
                         }
-                        100%{
-                            background-color: rgba(255, 255, 255, 1);
-                            transform: scale(1);
+
+
+                        @keyframes fadeinPage{
+                            0%{
+                                background-color: rgba(255, 255, 255, 0.5);
+                                transform: scale(0.7);
+                            }
+                            100%{
+                                background-color: rgba(255, 255, 255, 1);
+                                transform: scale(1);
+                            }
                         }
-                    }
 
-                    .profile__buttonsContainer{
-                        margin: 0 auto;
-                        margin-top: 20px;
-                        width: 698px;
-                        height: 40px;
-                        display: flex;
-                        flex-direction: row;
-                        align-items: center;
-                        justify-content: space-between;
-                    }
+                        .profile__buttonsContainer{
+                            margin: 0 auto;
+                            margin-top: 20px;
+                            width: 698px;
+                            height: 40px;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: space-between;
+                        }
 
-                    .profile__downloadButton{
-                        margin: 1rem auto;
-                        display: block;
-                        width: 55px;
-                        height: 55px;
-                        background: rgba(255, 255, 255, 0.9);
-                        border: none;
-                        border-radius: 100%;
-                        transition: all 0.2s;
-                    }
+                        .profile__downloadButton{
+                            margin: 1rem auto;
+                            display: block;
+                            width: 55px;
+                            height: 55px;
+                            background: rgba(255, 255, 255, 0.9);
+                            border: none;
+                            border-radius: 100%;
+                            transition: all 0.2s;
+                        }
 
-                    .profile__s2Button{
-                        margin: 1rem auto;
-                        display: block;
-                        width: 55px;
-                        height: 55px;
-                        font-size: 20px;
-                        background: rgba(255, 255, 255, 0.9);
-                        border: none;
-                        border-radius: 100%;
-                        transition: all 0.2s;
-                    }
+                        .profile__s2Button{
+                            margin: 1rem auto;
+                            display: block;
+                            width: 55px;
+                            height: 55px;
+                            font-size: 20px;
+                            background: rgba(255, 255, 255, 0.9);
+                            border: none;
+                            border-radius: 100%;
+                            transition: all 0.2s;
+                        }
 
-                    .profile__downloadButton:hover{
-                        background: rgba(255, 255, 255, 1);
-                    }
+                        .profile__downloadButton:hover{
+                            background: rgba(255, 255, 255, 1);
+                        }
 
-                    .profile__s2Button:hover{
-                        background: rgba(255, 255, 255, 1);
-                    }
+                        .profile__s2Button:hover{
+                            background: rgba(255, 255, 255, 1);
+                        }
 
-                    .profile__page {
-                        width: 698px;             /* A4 width at 96dpi */
-                        height: 600px;
-                        overflow-y: scroll;
-                        scrollbar-width: none;
-                        margin: 20px auto;
-                        background: #fff;
-                        padding: 0px;
-                        border-radius: 5px;
-                        box-sizing: border-box;
-                        font-family: 'Calibri';
-                        color: #000;
-                        transition: all 0.25s
-                    }
-
-                    .profile__page.expanded {
-                        width: 95%;
-                        overflow-x: scroll;
-                    }
-
-                    .profile__page.print {
-                        width: 698px;             /* A4 width at 96dpi */
-                        height: auto;
-
-                    }
-
-                    .profile__container{
-                        width: 93%;
-                        margin: 0 auto;
-                    }
-
-                    .profile__beginPar{
-                        text-align: center;
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        padding: 2px 1px;
-                        border: 1px solid #000;
-                    }
-
-                    .profile__titleDiv{
-                        border: 1px solid #000;
-                        padding: 0;
-                        display: flex;
-                        flex-direction: row;
-                        justify-content: space-between;
-                        align-items: center;
-                    }
-
-                    .profile__titleLogo{
-                        color: rgb(59,82,159);
-                        font-family: serif;
-                        margin: 1px 20px;
-                        padding: 0;
-                        font-size: 28px;
-                        width: 160px;
-                    }
-                        
-                    .profile__oSvg{
-                        position: absolute;
-                        top: -4px;
-                        left: 20px;
-                        height: 32px;
-                        width: 32px;
-                        transform: scale(0.30);
-                        margin: 0;
-                        padding: 0;
-                    }
-                        
-                    .profile__spacer{
-                        margin: 0;
-                        padding: 0;
-                        opacity: 1;
-                        display: inline;
-                    }
-
-                    .profile__title{
-                        font-size: 18pt;
-                        font-family: 'Calibri';
-                        font-weight: normal;
-                        padding: 0;
-                    }
-
-                    .invisible{
-                        opacity: 0;
-                    }
-
-                    .profile__nameDiv{
-                        border: 1px solid #000;
-                        display: flex;
-                        flex-direction: row;
-                        justify-content: start;
-                    }
-
-                    .profile__imageContainer{
-                        cursor: pointer;
-                        height: auto;
-                        width: 324px;
-                        background-image: url(${mostRecentImageUrl});
-                        background-size: contain;
-                        background-repeat: no-repeat;
-                        background-position: center;
-                    }
-
-                    .profile__nameTable{
-                        width: 100%;
-                        border: 1px solid #000;
-                        height: 100%;
-                        border-collapse: collapse;
-                    }
-
-                    .profile__nameTable tbody tr td{
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        border: 1px solid #000;
-                    }
-
-                    .profile__nameLable{
-                        width: 190px;
-                        
-                    }
-
-                    .profile_trainingTable {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 0px;
-                    }
-
-                    .profile__employmentRow{
-                        background-color: rgb(203, 203, 203);
-                        text-align: center;
-                        margin: 0;
-                        padding: 1px;
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        border: 1px solid #000;
-                    }
-
-                    .profile__modularTable{
-                        border: 1px solid #000;
-                        width: 100%;
-                        border-collapse: collapse;
-                    }
-
-                    .profile__modularTable tbody tr td{
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        border: 1px solid #000;
-                    }
-
-                    .profile__headerRow{
-                        width: 215px;
-                        border: 1px solid #000;
-                    }
-
-                    .profile__secondColumn{
-                        width: 190px;
-                    }
-
-                    .profile__thirdColumn{
-                        text-align: center;
-                   
-                    }
-
-                    .profile__mandatoryRow{
-                        background-color: rgb(203, 203, 203);
-                        text-align: center;
-                        margin: 0;
-                        padding: 10px;
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        border: 1px solid #000;
-                    }
-
-                    .profile_trainingTable th, .profile_trainingTable td {
-                        border: 1px solid #000;
-                        padding: 0;
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        text-align: center;
-                    }
-
-                    .profile_trainingTable th {
-                        /* background-color: #f2f2f2; */
-                        font-weight: bold;
-                        font-family: 'Calibri';
-                    }
-
-                    .profile_trainingTable tr {
-                        page-break-inside: avoid;  /* prevent rows splitting across pages */
-                        break-inside: avoid;
-                    }
-
-                    .profile__endPar{
-                        text-align: center;
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        padding: 20px 1px;
-                    }
-
-                    .profile__completionTable {
-                        border-collapse: collapse;
-                        width: auto;
-                        font-family: 'Calibri';
-                        font-size: 11pt;
-                        width: 100%;
-                    }
-
-                    .profile__completionTable-row {
-                        border: 1px solid #000;
-                        padding: 0px;
-                        vertical-align: middle;
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                    }
-
-                    .profile__label {
-                        background-color: rgb(203, 203, 203);
-                        font-weight: normal;
-                        color: rgb(0, 0, 0);
-                        font-size: 11pt;
-                        font-family: 'Calibri';
-                        width: 140px;
-                        height: 100%;
-                        border: 1px solid #000;
-                        border-radius: 0;
-                    }
-
-                    .profile__dateBox{
-                        background-color: rgb(203, 203, 203);
-                        font-size: 11pt;
-                        border: 1px solid #000;
-                        border-radius: 0;
-                    }
-
-                    .signature {
-                        font-family: "Brush Script MT", cursive;
-                        width: 210px;
-                        font-size: 11pt;
-                    }
-
-                    @media print {
-                        .profile__mask { display: none !important; }
-                        .profile__background { display: none !important; }
                         .profile__page {
-                            width: 100% !important;
-                            min-height: auto !important;
-                            height: auto !important;
-                            margin: 0;
+                            width: 698px;             /* A4 width at 96dpi */
+                            height: 600px;
+                            overflow-y: scroll;
+                            scrollbar-width: none;
+                            margin: 20px auto;
+                            background: #fff;
                             padding: 0px;
-                            border-radius: 0;
-                            box-shadow: none;
+                            border-radius: 5px;
+                            box-sizing: border-box;
+                            font-family: 'Calibri';
+                            color: #000;
+                            transition: all 0.25s
                         }
-                    }
-            
-                </style>
+
+                        .profile__page.expanded {
+                            width: 95%;
+                            overflow-x: scroll;
+                        }
+
+                        .profile__page.print {
+                            width: 698px;             /* A4 width at 96dpi */
+                            height: auto;
+
+                        }
+
+                        .profile__container{
+                            width: 93%;
+                            margin: 0 auto;
+                        }
+
+                        .profile__beginPar{
+                            text-align: center;
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            padding: 2px 1px;
+                            border: 1px solid #000;
+                        }
+
+                        .profile__titleDiv{
+                            border: 1px solid #000;
+                            padding: 0;
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+
+                        .profile__titleLogo{
+                            color: rgb(59,82,159);
+                            font-family: serif;
+                            margin: 1px 20px;
+                            padding: 0;
+                            font-size: 28px;
+                            width: 160px;
+                        }
+                            
+                        .profile__oSvg{
+                            position: absolute;
+                            top: -4px;
+                            left: 20px;
+                            height: 32px;
+                            width: 32px;
+                            transform: scale(0.30);
+                            margin: 0;
+                            padding: 0;
+                        }
+                            
+                        .profile__spacer{
+                            margin: 0;
+                            padding: 0;
+                            opacity: 1;
+                            display: inline;
+                        }
+
+                        .profile__title{
+                            font-size: 18pt;
+                            font-family: 'Calibri';
+                            font-weight: normal;
+                            padding: 0;
+                        }
+
+                        .invisible{
+                            opacity: 0;
+                        }
+
+                        .profile__nameDiv{
+                            border: 1px solid #000;
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: start;
+                        }
+
+                        .profile__imageContainer{
+                            cursor: pointer;
+                            height: auto;
+                            width: 324px;
+                            background-image: url(${mostRecentImageUrl});
+                            background-size: contain;
+                            background-repeat: no-repeat;
+                            background-position: center;
+                        }
+
+                        .profile__nameTable{
+                            width: 100%;
+                            border: 1px solid #000;
+                            height: 100%;
+                            border-collapse: collapse;
+                        }
+
+                        .profile__nameTable tbody tr td{
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            border: 1px solid #000;
+                        }
+
+                        .profile__nameLable{
+                            width: 210px;
+                            
+                        }
+
+                        .profile_trainingTable {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 0px;
+                        }
+
+                        .profile__employmentRow{
+                            background-color: rgb(203, 203, 203);
+                            text-align: center;
+                            margin: 0;
+                            padding: 1px;
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            border: 1px solid #000;
+                        }
+
+                        .profile__modularTable{
+                            border: 1px solid #000;
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+
+                        .profile__modularTable tbody tr td{
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            border: 1px solid #000;
+                        }
+
+                        .profile__headerRow{
+                            width: 215px;
+                            border: 1px solid #000;
+                        }
+
+                        .profile__secondColumn{
+                            width: 210px;
+                        }
+
+                        .profile__thirdColumn{
+                            text-align: center;
+                    
+                        }
+
+                        .profile__mandatoryRow{
+                            background-color: rgb(203, 203, 203);
+                            text-align: center;
+                            margin: 0;
+                            padding: 10px;
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            border: 1px solid #000;
+                        }
+
+                        .profile_trainingTable th, .profile_trainingTable td {
+                            border: 1px solid #000;
+                            padding: 0;
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            text-align: center;
+                        }
+
+                        .profile_trainingTable th {
+                            /* background-color: #f2f2f2; */
+                            font-weight: bold;
+                            font-family: 'Calibri';
+                        }
+
+                        .profile_trainingTable tr {
+                            page-break-inside: avoid;  /* prevent rows splitting across pages */
+                            break-inside: avoid;
+                        }
+
+                        .profile__endPar{
+                            text-align: center;
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            padding: 20px 1px;
+                        }
+
+                        .profile__completionTable {
+                            border-collapse: collapse;
+                            width: auto;
+                            font-family: 'Calibri';
+                            font-size: 11pt;
+                            width: 100%;
+                        }
+
+                        .profile__completionTable-row {
+                            border: 1px solid #000;
+                            padding: 0px;
+                            vertical-align: middle;
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                        }
+
+                        .profile__label {
+                            background-color: rgb(203, 203, 203);
+                            font-weight: normal;
+                            color: rgb(0, 0, 0);
+                            font-size: 11pt;
+                            font-family: 'Calibri';
+                            width: 140px;
+                            height: 100%;
+                            border: 1px solid #000;
+                            border-radius: 0;
+                        }
+
+                        .profile__dateBox{
+                            background-color: rgb(203, 203, 203);
+                            font-size: 11pt;
+                            border: 1px solid #000;
+                            border-radius: 0;
+                        }
+
+                        .signature {
+                            font-family: "Brush Script MT", cursive;
+                            width: 210px;
+                            font-size: 11pt;
+                        }
+
+                        @media print {
+                            .profile__mask { display: none !important; }
+                            .profile__background { display: none !important; }
+                            .profile__page {
+                                width: 100% !important;
+                                min-height: auto !important;
+                                height: auto !important;
+                                margin: 0;
+                                padding: 0px;
+                                border-radius: 0;
+                                box-shadow: none;
+                            }
+                        }
                 
-                <div class="profile__background">
-                    <div class="profile__buttonsContainer">
-                        <button class="profile__downloadButton"><i style="font-size: 25px;" class="fa-solid fa-file-arrow-down"></i></button>
-                        <button class="profile__s2Button">S2</button>
-                    </div>
-                    <div class="profile__page">
-                        <div class="profile__container">
-
-                        <div class="profile__beginPar">
-                            Elborough Care Services, Unit 2 Morston Court, Aisecome Way, Weston-super-Mare, BS22 8NG
-                            hello@elboroughcares.co.uk  01934805830 <br>
-                            Out of hours 01934806774
+                    </style>
+                    
+                    <div class="profile__background">
+                        <div class="profile__buttonsContainer">
+                            <button class="profile__downloadButton"><i style="font-size: 25px;" class="fa-solid fa-file-arrow-down"></i></button>
+                            <button class="profile__s2Button">S2</button>
                         </div>
+                        <div class="profile__page">
+                            <div class="profile__container">
 
-                        <div class="profile__titleDiv">
+                            <div class="profile__beginPar">
+                                Elborough Care Services, Unit 2 Morston Court, Aisecome Way, Weston-super-Mare, BS22 8NG
+                                hello@elboroughcares.co.uk  01934805830 <br>
+                                Out of hours 01934806774
+                            </div>
 
-                            <img class="profile__titleLogo" src="${elboroughBase64}" alt="Elborough">
+                            <div class="profile__titleDiv">
 
-                            <h1 class="profile__title">Staff Profile</h1>
-                            <p class="profile__titleLogo invisible">Elborough</p>
-                        </div>
-                        
-                        <div class="profile__nameDiv">
-                            <div class="profile__imageContainer"></div>
-                            <table class="profile__nameTable">
-                                <tbody>
-                                    <tr>
-                                        <td class="profile__nameLable">Name:</td>
-                                        <td class="profile__thirdColumn">${firstName}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__nameLable">Last Name:</td>
-                                        <td class="profile__thirdColumn">${surname}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__nameLable">Date of Birth:</td>
-                                        <td class="profile__thirdColumn">${dateOfBirth}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__nameLable">Job Title:</td>
-                                        <td class="profile__thirdColumn">${role}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__nameLable">Issue Date of Photography:</td>
-                                        <td class="profile__thirdColumn" contenteditable="true">${mostRecentPhotoDate}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__nameLable">Work permit required:</td>
-                                        <td class="profile__thirdColumn">${workPermitRequired}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__nameLable" contenteditable="true">Work permit checked date:</td>
-                                        <td class="profile__thirdColumn">${workPermitCheckedDate}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                <img class="profile__titleLogo" src="${elboroughBase64}" alt="Elborough">
 
-                        <div class="profile__employmentRow">Employment Checks</div>
-
-                        <table class="profile__modularTable">
-                            <tbody>
-                            <tr>
-                                <td class="profile__headerRow" rowspan="5">Proof of eligibility to work in the UK</td>
-                                <td class="profile__secondColumn" >Original Passport/ID card seen and verified:</td>
-                                <td class="profile__thirdColumn">${passportUploadedDate.length > 1 ? 'Yes' : 'No'}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Nationality:</td>
-                                <td class="profile__thirdColumn">${nationality}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Date seen and verified:</td>
-                                <td class="profile__thirdColumn">${passportUploadedDate}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Current visa/status check and verified:</td>
-                                <td class="profile__thirdColumn">${(['British', 'Irish', 'Scottish', 'Northern Irish'].includes(nationality.trim()) ? 'N/A' : 'Yes')}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Date seen and verified:</td>
-                                <td class="profile__thirdColumn">${workPermitCheckedDate}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        <table class="profile__modularTable">
-                            <tbody>
-                            <tr>
-                                <td class="profile__headerRow" rowspan="5">Proof address</td>
-                                <td class="profile__secondColumn" >1st proof of address:</td>
-                                <td class="profile__thirdColumn">${poaDocOneUploadedDate.length > 3 ? 'Yes' : 'No'}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Date seen and verified:</td>
-                                <td class="profile__thirdColumn">${poaDocOneUploadedDate}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >2nd proof of address:</td>
-                                <td class="profile__thirdColumn">${poaDocTwoUploadedDate.length > 3 ? 'Yes' : 'No'}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Date seen and verified:</td>
-                                <td class="profile__thirdColumn">${poaDocTwoUploadedDate}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                        <table class="profile__modularTable">
-                            <tbody>
-                            <tr>
-                                <td class="profile__headerRow" rowspan="5">Employment history and references</td>
-                                <td class="profile__secondColumn" >Employment History checked</td>
-                                <td class="profile__thirdColumn">Yes</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >Date checked:</td>
-                                <td class="profile__thirdColumn">${applicationFormDate}</td>
-                            </tr>
-                            <tr>
-                                <td class="profile__secondColumn" >References checked</td>
-                                <td class="profile__thirdColumn">Yes</td>
-                            </tr>
-                            <tr>
-                            <td class="profile__secondColumn" >Date checked:</td>
-                            <td class="profile__thirdColumn">${referenceOneDate}</td>
-                            </tr>
-                            <tr>
-                            <td class="profile__secondColumn" >CV / application on file: </td>
-                            <td class="profile__thirdColumn">${cvDate.length > 3 ? 'Yes' : 'No'}</td>
-                            </tr>
-                            </tbody>
-                            </table>
-
-                            <table class="profile__modularTable">
-                                <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="5">Enhanced DBS certificate details</td>
-                                        <td class="profile__secondColumn" >DBS Number:</td>
-                                        <td class="profile__thirdColumn">${dbs}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >DBS Issue Date:</td>
-                                        <td class="profile__thirdColumn">${dbsIssueDate}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >DBS Check Date:</td>
-                                        <td class="profile__thirdColumn" contenteditable="true">${dbsUpdateMostRecentDate}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Disclosures on enhanced DBS cert:</td>
-                                        <td class="profile__thirdColumn">${dbsConvictions}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <table class="profile__modularTable">
-                                <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="6">Driving Check</td>
-                                        <td class="profile__secondColumn" >Driving licence seen and verified</td>
-                                        <td class="profile__thirdColumn">${drivingLicenseSeenDate == 'N/A' ? 'N/A' : 'Yes'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn">${drivingLicenseSeenDate}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Business Insurance seen and verified:</td>
-                                        <td class="profile__thirdColumn">${businessInsuranceSeenDate == 'N/A' ? 'N/A' : 'Yes'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn">${businessInsuranceSeenDate}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >MOT seen and verified:</td>
-                                        <td class="profile__thirdColumn">${motSeenDate == 'N/A' ? 'N/A' : 'Yes'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn" >Date seen and verified:</td>
-                                        <td class="profile__thirdColumn">${motSeenDate}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <table class="profile__modularTable">
-                                <tbody>
-                                    <tr>
-                                        <td class="profile__headerRow" rowspan="2">Police check (when applicable)</td>
-                                        <td class="profile__secondColumn" >Police check seen and verified:</td>
-                                        <td class="profile__thirdColumn">${ospcUpdateMostRecentDate.length > 7 ? 'Yes' : 'N/A'}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="profile__secondColumn">Date seen and verified:</td>
-                                        <td class="profile__thirdColumn">${ospcUpdateMostRecentDate}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            ${role == 'RGN' || role == 'RMN' ?
-                                `
-                                <table class="profile__modularTable">
+                                <h1 class="profile__title">Staff Profile</h1>
+                                <p class="profile__titleLogo invisible">Elborough</p>
+                            </div>
+                            
+                            <div class="profile__nameDiv">
+                                <div class="profile__imageContainer"></div>
+                                <table class="profile__nameTable">
                                     <tbody>
                                         <tr>
-                                            <td class="profile__headerRow" rowspan="5">Professional Registration and qualifications</td>
-                                            <td class="profile__secondColumn" >Pin Number:</td>
-                                            <td class="profile__thirdColumn">${nmcPin}</td>
+                                            <td class="profile__nameLable">Name:</td>
+                                            <td class="profile__thirdColumn">${firstName}</td>
                                         </tr>
                                         <tr>
-                                            <td class="profile__secondColumn" >PIN Number seen and verified:</td>
-                                            <td class="profile__thirdColumn">${pinSeen.length > 7 ? 'Yes' : ''}</td>
+                                            <td class="profile__nameLable">Last Name:</td>
+                                            <td class="profile__thirdColumn">${surname}</td>
                                         </tr>
                                         <tr>
-                                            <td class="profile__secondColumn" >Date seen and verified:</td>
-                                            <td class="profile__thirdColumn">${pinSeen}</td>
+                                            <td class="profile__nameLable">Date of Birth:</td>
+                                            <td class="profile__thirdColumn">${dateOfBirth}</td>
                                         </tr>
                                         <tr>
-                                            <td class="profile__secondColumn">PIN number expire date:</td>
-                                            <td class="profile__thirdColumn">${revalidationDate}</td>
+                                            <td class="profile__nameLable">Job Title:</td>
+                                            <td class="profile__thirdColumn">${role}</td>
                                         </tr>
                                         <tr>
-                                            <td class="profile__secondColumn" >Any existing undertakings/conditions with the NMC or review of fitness to practice?</td>
-                                            <td class="profile__thirdColumn" contenteditable="true">${nmcReferals}</td>
+                                            <td class="profile__nameLable">Issue Date of Photography:</td>
+                                            <td class="profile__thirdColumn" contenteditable="true">${mostRecentPhotoDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__nameLable">Work permit required:</td>
+                                            <td class="profile__thirdColumn">${workPermitRequired}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__nameLable" contenteditable="true">Work permit checked date:</td>
+                                            <td class="profile__thirdColumn">${workPermitCheckedDate}</td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                ` 
-                            :
-                             ''}
+                            </div>
 
-                            <div class="profile__mandatoryRow">Mandatory skills training record</div>
+                            <div class="profile__employmentRow">Employment Checks</div>
 
-                            <table class="profile_trainingTable">
-                                <thead>
-                                    <tr>
-                                        <th>Name of the training</th>
-                                        <th>Provider</th>
-                                        <th>Date Completed</th>
-                                        <th>Expire Date</th>
-                                    </tr>
-                                </thead>
-                                                    
+                            <table class="profile__modularTable">
                                 <tbody>
-                                    <tr> <td>${blsType}</td> <td>${blsProvider}</td> <td>${blsCompletionDate}</td> <td>${blsExpireDate}</td> </tr>
-                                    <tr> <td>${plsType}</td> <td>${plsProvider}</td> <td>${plsCompletionDate}</td> <td>${plsExpireDate}</td> </tr>
-                                    <tr> <td>Moving &amp; Handling</td> <td>${mhProvider}</td> <td>${mhCompletionDate}</td> <td>${mhExpireDate}</td> </tr>
-                                    <tr> <td>Safeguarding Children</td> <td>${cplProvider}</td> <td>${cplCompletionDate}</td> <td>${cplExpireDate}</td> </tr>
-                                    <tr> <td>Epilepsy Awareness</td> <td>${epilepsyProvider}</td> <td>${epilepsyCompletionDate}</td> <td>${epilepsyExpireDate}</td> </tr>
-                                    <tr> <td>Food Hygiene</td> <td>${foodProvider}</td> <td>${foodCompletionDate}</td> <td>${foodExpireDate}</td> </tr>
-                                    <tr> <td>Oliver McGowan</td> <td>${omProvider}</td> <td>${omCompletionDate}</td> <td>${omExpireDate}</td> </tr>
-                                    <tr> <td>Child Sexual Exploitation</td> <td>${cseProvider}</td> <td>${cseCompletionDate}</td> <td>${cseExpireDate}</td> </tr>
-                                    <tr> <td>County Lines and Knife Crime</td> <td>${countyProvider}</td> <td>${countyCompletionDate}</td> <td>${countyExpireDate}</td> </tr>
-                                    <tr> <td>Substance Misuse</td> <td>${substanceProvider}</td> <td>${substanceCompletionDate}</td> <td>${substanceExpireDate}</td> </tr>
-                                    <tr> <td>Medication</td> <td>${medProvider}</td> <td>${medCompletionDate}</td> <td>${medExpireDate}</td> </tr>
-                                    <tr> <td>De-escalation/Physical Intervention</td> <td>${PMVAProvider}</td> <td>${PMVACompletionDate}</td> <td>${PMVAExpireDate}</td> </tr>
+                                <tr>
+                                    <td class="profile__headerRow" rowspan="5">Proof of eligibility to work in the UK</td>
+                                    <td class="profile__secondColumn" >Original Passport/ID card seen and verified:</td>
+                                    <td class="profile__thirdColumn">${passportUploadedDate.length > 1 ? 'Yes' : 'No'}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Nationality:</td>
+                                    <td class="profile__thirdColumn">${nationality}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Date seen and verified:</td>
+                                    <td class="profile__thirdColumn">${passportUploadedDate}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Current visa/status checked and verified:</td>
+                                    <td class="profile__thirdColumn">${(['British', 'Irish', 'Scottish', 'Northern Irish'].includes(nationality.trim()) ? 'N/A' : 'Yes')}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Date seen and verified:</td>
+                                    <td class="profile__thirdColumn">${workPermitCheckedDate}</td>
+                                </tr>
                                 </tbody>
                             </table>
 
-                            <div class="profile__endPar">
-                                The above-named worker has undergone all the necessary and appropriate pre-employment screening checks
-                                as required to ensure their compliance prior to supply and have completed the necessary training. 
-                            </div>
-
-                            <table class="profile__completionTable">
+                            <table class="profile__modularTable">
                                 <tbody>
-                                    <tr class="profile__completionTable-row">
-                                        <td class="profile__label">Profile completed by</td>
-                                        <td colspan="3">${userName}</td>
-                                    </tr>
-                                    <tr class="profile__completionTable-row">
-                                        <td class="profile__label">Signature</td>
-                                        <td class="signature">${userNameShort}</td>
-                                        <td class="profile__dateBox">Date</td>
-                                        <td>${new Date().toLocaleDateString('en-GB')}</td>
-                                    </tr>
+                                <tr>
+                                    <td class="profile__headerRow" rowspan="5">Proof address</td>
+                                    <td class="profile__secondColumn" >1st proof of address:</td>
+                                    <td class="profile__thirdColumn">${poaDocOneUploadedDate.length > 3 ? 'Yes' : 'No'}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Date seen and verified:</td>
+                                    <td class="profile__thirdColumn">${poaDocOneUploadedDate}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >2nd proof of address:</td>
+                                    <td class="profile__thirdColumn">${poaDocTwoUploadedDate.length > 3 ? 'Yes' : 'No'}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Date seen and verified:</td>
+                                    <td class="profile__thirdColumn">${poaDocTwoUploadedDate}</td>
+                                </tr>
                                 </tbody>
                             </table>
 
-                            </div>
-                            </div>
-                            </div>
-                    `
-                    document.body.insertAdjacentHTML('beforeend', profileHTML)
-                
-                    }, 3000)
+                            <table class="profile__modularTable">
+                                <tbody>
+                                <tr>
+                                    <td class="profile__headerRow" rowspan="5">Employment history and references</td>
+                                    <td class="profile__secondColumn" >Employment History checked:</td>
+                                    <td class="profile__thirdColumn">Yes</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >Date checked:</td>
+                                    <td class="profile__thirdColumn">${applicationFormDate}</td>
+                                </tr>
+                                <tr>
+                                    <td class="profile__secondColumn" >References checked:</td>
+                                    <td class="profile__thirdColumn">Yes</td>
+                                </tr>
+                                <tr>
+                                <td class="profile__secondColumn" >Date checked:</td>
+                                <td class="profile__thirdColumn">${referenceOneDate}</td>
+                                </tr>
+                                <tr>
+                                <td class="profile__secondColumn" >CV / application on file: </td>
+                                <td class="profile__thirdColumn">${cvDate.length > 3 ? 'Yes' : 'No'}</td>
+                                </tr>
+                                </tbody>
+                                </table>
 
-                    setTimeout(() => {
-                        //When the photo is clicked on, the user can upload a different image file. 
-                        const photo = document.querySelector('.profile__imageContainer')
-                        const fileInput = document.createElement('input')
-                        fileInput.type = 'file'
-                        fileInput.accept = 'image/*'
-                        fileInput.style.display = 'none'
-                        document.body.appendChild(fileInput)
+                                <table class="profile__modularTable">
+                                    <tbody>
+                                        <tr>
+                                            <td class="profile__headerRow" rowspan="5">Enhanced DBS certificate details</td>
+                                            <td class="profile__secondColumn" >DBS Number:</td>
+                                            <td class="profile__thirdColumn">${dbs}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >DBS Issue Date:</td>
+                                            <td class="profile__thirdColumn">${dbsIssueDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >DBS Check Date:</td>
+                                            <td class="profile__thirdColumn" contenteditable="true">${dbsUpdateMostRecentDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >Disclosures on enhanced DBS cert:</td>
+                                            <td class="profile__thirdColumn">${dbsConvictions}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-                        photo.addEventListener('click', () => {
-                            fileInput.click()
-                        });
+                                <table class="profile__modularTable">
+                                    <tbody>
+                                        <tr>
+                                            <td class="profile__headerRow" rowspan="6">Driving Check</td>
+                                            <td class="profile__secondColumn" >Driving licence seen and verified:</td>
+                                            <td class="profile__thirdColumn">${drivingLicenseSeenDate == 'N/A' ? 'N/A' : 'Yes'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >Date seen and verified:</td>
+                                            <td class="profile__thirdColumn">${drivingLicenseSeenDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >Business Insurance seen and verified:</td>
+                                            <td class="profile__thirdColumn">${businessInsuranceSeenDate == 'N/A' ? 'N/A' : 'Yes'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >Date seen and verified:</td>
+                                            <td class="profile__thirdColumn">${businessInsuranceSeenDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >MOT seen and verified:</td>
+                                            <td class="profile__thirdColumn">${motSeenDate == 'N/A' ? 'N/A' : 'Yes'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn" >Date seen and verified:</td>
+                                            <td class="profile__thirdColumn">${motSeenDate}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-                        fileInput.addEventListener('change', (e) => {
-                            const file = e.target.files[0]
-                            if (!file) return
-                            const reader = new FileReader()
-                            reader.onload = function(evt) {
-                                photo.style.backgroundImage = `url('${evt.target.result}')`
-                            }
-                            reader.readAsDataURL(file)
-                        })
-                    }, 3010)
-                
+                                <table class="profile__modularTable">
+                                    <tbody>
+                                        <tr>
+                                            <td class="profile__headerRow" rowspan="2">Police check (when applicable)</td>
+                                            <td class="profile__secondColumn" >Police check seen and verified:</td>
+                                            <td class="profile__thirdColumn">${ospcUpdateMostRecentDate.length > 7 ? 'Yes' : 'N/A'}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="profile__secondColumn">Date seen and verified:</td>
+                                            <td class="profile__thirdColumn">${ospcUpdateMostRecentDate}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                ${role == 'RGN' || role == 'RMN' ?
+                                    `
+                                    <table class="profile__modularTable">
+                                        <tbody>
+                                            <tr>
+                                                <td class="profile__headerRow" rowspan="5">Professional Registration and qualifications</td>
+                                                <td class="profile__secondColumn" >Pin Number:</td>
+                                                <td class="profile__thirdColumn">${nmcPin}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="profile__secondColumn" >PIN Number seen and verified:</td>
+                                                <td class="profile__thirdColumn">${pinSeen.length > 7 ? 'Yes' : ''}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="profile__secondColumn" >Date seen and verified:</td>
+                                                <td class="profile__thirdColumn">${pinSeen}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="profile__secondColumn">PIN number expire date:</td>
+                                                <td class="profile__thirdColumn">${revalidationDate}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="profile__secondColumn" >Any existing undertakings/conditions with the NMC or review of fitness to practice?</td>
+                                                <td class="profile__thirdColumn" contenteditable="true">${nmcReferals}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    ` 
+                                :
+                                ''}
+
+                                <div class="profile__mandatoryRow">Mandatory skills training record</div>
+
+                                <table class="profile_trainingTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name of the training</th>
+                                            <th>Provider</th>
+                                            <th>Date Completed</th>
+                                            <th>Expire Date</th>
+                                        </tr>
+                                    </thead>
+                                                        
+                                    <tbody>
+                                        <tr> <td>${blsType}</td> <td>${blsProvider}</td> <td>${blsCompletionDate}</td> <td>${blsExpireDate}</td> </tr>
+                                        <tr> <td>${plsType}</td> <td>${plsProvider}</td> <td>${plsCompletionDate}</td> <td>${plsExpireDate}</td> </tr>
+                                        <tr> <td>Moving &amp; Handling</td> <td>${mhProvider}</td> <td>${mhCompletionDate}</td> <td>${mhExpireDate}</td> </tr>
+                                        <tr> <td>Safeguarding Children</td> <td>${cplProvider}</td> <td>${cplCompletionDate}</td> <td>${cplExpireDate}</td> </tr>
+                                        <tr> <td>Epilepsy Awareness</td> <td>${epilepsyProvider}</td> <td>${epilepsyCompletionDate}</td> <td>${epilepsyExpireDate}</td> </tr>
+                                        <tr> <td>Food Hygiene</td> <td>${foodProvider}</td> <td>${foodCompletionDate}</td> <td>${foodExpireDate}</td> </tr>
+                                        <tr> <td contenteditable="true">Oliver McGowan</td> <td contenteditable="true">${omProvider}</td> <td contenteditable="true">${omCompletionDate}</td> <td contenteditable="true">${omExpireDate}</td> </tr>
+                                        <tr> <td>Child Sexual Exploitation</td> <td>${cseProvider}</td> <td>${cseCompletionDate}</td> <td>${cseExpireDate}</td> </tr>
+                                        <tr> <td>County Lines and Knife Crime</td> <td>${countyProvider}</td> <td>${countyCompletionDate}</td> <td>${countyExpireDate}</td> </tr>
+                                        <tr> <td>Substance Misuse</td> <td>${substanceProvider}</td> <td>${substanceCompletionDate}</td> <td>${substanceExpireDate}</td> </tr>
+                                        <tr> <td>Medication</td> <td>${medProvider}</td> <td>${medCompletionDate}</td> <td>${medExpireDate}</td> </tr>
+                                        <tr> <td>De-escalation/Physical Intervention</td> <td>${PMVAProvider}</td> <td>${PMVACompletionDate}</td> <td>${PMVAExpireDate}</td> </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="profile__endPar">
+                                    The above-named worker has undergone all the necessary and appropriate pre-employment screening checks
+                                    as required to ensure their compliance prior to supply and have completed the necessary training. 
+                                </div>
+
+                                <table class="profile__completionTable">
+                                    <tbody>
+                                        <tr class="profile__completionTable-row">
+                                            <td class="profile__label">Profile completed by</td>
+                                            <td colspan="3">${userName}</td>
+                                        </tr>
+                                        <tr class="profile__completionTable-row">
+                                            <td class="profile__label">Signature</td>
+                                            <td class="signature">${userNameShort}</td>
+                                            <td class="profile__dateBox">Date</td>
+                                            <td>${new Date().toLocaleDateString('en-GB')}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                </div>
+                                </div>
+                                </div>
+                        `
+                        document.body.insertAdjacentHTML('beforeend', profileHTML)
                     
-                }
+                        }, 3000)
+
+                        setTimeout(() => {
+                            //When the photo is clicked on, the user can upload a different image file. 
+                            const photo = document.querySelector('.profile__imageContainer')
+                            const fileInput = document.createElement('input')
+                            fileInput.type = 'file'
+                            fileInput.accept = 'image/*'
+                            fileInput.style.display = 'none'
+                            document.body.appendChild(fileInput)
+
+                            photo.addEventListener('click', () => {
+                                fileInput.click()
+                            });
+
+                            fileInput.addEventListener('change', (e) => {
+                                const file = e.target.files[0]
+                                if (!file) return
+                                const reader = new FileReader()
+                                reader.onload = function(evt) {
+                                    photo.style.backgroundImage = `url('${evt.target.result}')`
+                                }
+                                reader.readAsDataURL(file)
+                            })
+                        }, 3010)
+                    
+                        
+                    }
             }
         })
 
@@ -1424,45 +1559,8 @@ setTimeout(()=> {
                 const background = document.querySelector('.profile__background')
                 mask.remove()
                 background.remove()
-
-                const imGreat = `
-                    <style>
-                        .imGreat{
-                            transform: translateY(15px) scale(0.9);
-                            animation: fadePopInOut 2s ease-out forwards;
-                        }	
-  			
-                        @keyframes fadePopInOut {
-                            0% {
-                                opacity: 0;
-                                transform: translateY(15px) scale(0.9);
-                            }
-                            15% {
-                                opacity: 1;
-                                transform: translateY(0px) scale(1);
-                            }
-                            85% {
-                                opacity: 1;
-                                transform: translateY(0px) scale(1);
-                            }
-                            100% {
-                                opacity: 0;
-                                transform: translateY(15px) scale(0.9);
-                            }
-                        }
-                    </style>
-
-                    <div id="toast-container" class="toast-bottom-right imGreat">
-                        <div class="toast toast-success" style="">
-                            <div class="toast-message">Remember Nathan is great</div>
-                        </div>
-                    </div>
-                `
-                document.body.insertAdjacentHTML('beforeend', imGreat)
                 
-                setTimeout(() => {
-                    document.querySelector('.imGreat').remove()
-                }, 2001)
+                displayMessage(0, 'Remember Nathan is great')
             }
         })
 
@@ -1470,9 +1568,10 @@ setTimeout(()=> {
         document.addEventListener('click', (e) => {
             if (e.target.closest('.profile__downloadButton')) {
                 //Change the ccs to print mode
-                document.querySelector('.profile__page').classList.add('print')
-                const profilePage = document.querySelector('.profile__page');
+                const profilePage = document.querySelector('.profile__page')
                 if (profilePage) {
+                    profilePage.classList.add('print')
+
                     const opt = {
                         margin:       0.5,
                         filename:     `Staff Profile - ${firstName} ${surname}.pdf`,
@@ -1481,7 +1580,10 @@ setTimeout(()=> {
                         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
                     };
 
-                    html2pdf().set(opt).from(profilePage).save();
+                    html2pdf().set(opt).from(profilePage).save()
+                    .then(()=>{
+                        profilePage.classList.remove('print')
+                    })
                 }
             }
         })
@@ -1515,7 +1617,7 @@ setTimeout(()=> {
                                 margin: 0 20px;
                             }
     
-                            .s2__copyButton-one:hover, .s2__copyButton-one:hover{
+                            .s2__copyButton-one:hover, .s2__copyButton-two:hover{
                                 background: rgba(0, 0, 0, 0.1);
                             }
                             
@@ -1582,10 +1684,7 @@ setTimeout(()=> {
                     e.target.classList.add('closeButton')
                     
                 } else if(e.target.classList.contains('profile__s2Button') && e.target.classList.contains('closeButton')){
-                    const testHTML = `<div> Yes </div>`
-                    profilePage.classList.remove('expanded')
-                    // profilePage.innerHTML = testHTML
-                    profilePage.innerHTML = profileHTML
+                    document.querySelector('.profile__background').innerHTML = profileHTML
 
                     e.target.innerText = 'S2'
                     e.target.classList.remove('closeButton')
