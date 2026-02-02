@@ -1306,7 +1306,7 @@ setTimeout(()=> {
 
                             <table class="profile__modularTable">
                                 <tbody>
-                                <tr>
+                                <tr contenteditable="true">
                                     <td class="profile__headerRow" rowspan="5">Proof of eligibility to work in the UK</td>
                                     <td class="profile__secondColumn" >Original Passport/ID card seen and verified:</td>
                                     <td class="profile__thirdColumn">${passportUploadedDate.length > 1 ? 'Yes' : 'No'}</td>
@@ -1315,7 +1315,7 @@ setTimeout(()=> {
                                     <td class="profile__secondColumn" >Nationality:</td>
                                     <td class="profile__thirdColumn">${nationality}</td>
                                 </tr>
-                                <tr>
+                                <tr contenteditable="true">
                                     <td class="profile__secondColumn" >Date seen and verified:</td>
                                     <td class="profile__thirdColumn">${passportUploadedDate}</td>
                                 </tr>
