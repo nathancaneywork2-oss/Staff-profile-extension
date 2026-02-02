@@ -737,7 +737,7 @@ setTimeout(()=> {
 
 
                 //Get the values for Safeguarding Children
-                const cplCell = tableElementsArray.find(e => e.textContent.trim() === 'Safeguarding Children Level 3')
+                const cplCell = tableElementsArray.find(e => e.textContent.trim() === 'Safeguarding Children Level 3' || e.textContent.trim() === 'Safeguarding Children Level 2')
                 if (cplCell) {
                     const cplParentCell = cplCell.parentElement.parentElement
                     const cplParentCellArray = Array.from(cplParentCell.children)
