@@ -72,6 +72,12 @@ var omExpireDate = ''
 //Other global variables
 var profileHTML = ''
 
+//Helper
+function convertStringToDate(dateString){
+    const [day, month, year] = dateString.split('/')
+    return new Date(year, month -1, day)
+}
+
 //Helper function for displaying error or success messages on the page
 function displayMessage(type, text){
     //Type 0 is a success message, anything else is an error message
@@ -696,24 +702,19 @@ setTimeout(()=> {
                     
                     // Check if the medication practical date has been filled in, if not, use med online dates.
                     if (medExpireDate && medExpireDate.length > 5) {
-                        // Parse medExpireDate (dd/mm/yyyy) to Date
-                        const [day, month, year] = medExpireDate.split('/');
-                        const expireDateObj = new Date(`${year}-${month}-${day}`);
+                        const convertedExpiryDate = convertStringToDate(medExpireDate)
 
-                        // Get 2 years and one month from today
-                        const oneMonthFromToday = new Date()
-                        oneMonthFromToday.setMonth(oneMonthFromToday.getMonth() + 1)
-                        oneMonthFromToday.setYear(oneMonthFromToday.getFullYear() + 2) 
-                        oneMonthFromToday.setHours(0,0,0,0)
+                        //If the medication pracitcal is expiried, or expiring soon, use online
+                        const today = new Date()
+                        today.setMonth(today.getMonth() + 1)
 
-                        // Only use practical medication if it's expiry is further in the future than 2 years and one month from today
-                        if (expireDateObj > oneMonthFromToday) {
+                        if (convertedExpiryDate > today) {
                             medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 3
                             medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear
                         } else{
                             medicationOnline()
                         }
-
+                        
                     } else{
                         medicationOnline()
                     }
