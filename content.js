@@ -710,7 +710,7 @@ setTimeout(()=> {
 
                         if (convertedExpiryDate > today) {
                             medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 3
-                            medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear
+                            medCompletionDate = medProvider.toLowerCase().includes('incomplete') ? '' :  medExpireDate.substring(0,6) + medCompletionYear
                         } else{
                             medicationOnline()
                         }
@@ -732,7 +732,7 @@ setTimeout(()=> {
                         medProvider = medParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                         medExpireDate = medParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                         medCompletionYear = parseInt(medExpireDate.substring(6,10)) - 3
-                        medCompletionDate = medExpireDate.substring(0,6) + medCompletionYear                   
+                        medCompletionDate = medProvider.toLowerCase().includes('incomplete') ? '' :  medExpireDate.substring(0,6) + medCompletionYear                   
                     }
                 }
 
@@ -758,7 +758,8 @@ setTimeout(()=> {
                     foodProvider = foodParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                     foodExpireDate = foodParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                     const foodCompletionYear = parseInt(foodExpireDate.substring(6,10)) - 3
-                    foodCompletionDate = foodExpireDate.substring(0,6) + foodCompletionYear
+                    foodCompletionDate = foodProvider.toLowerCase().includes('incomplete') ? '' : foodExpireDate.substring(0,6) + foodCompletionYear
+
                 } else{
                     displayMessage(1, 'Missing Food Hygiene')
                 }
@@ -771,7 +772,7 @@ setTimeout(()=> {
                     mhProvider = mhParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                     mhExpireDate = mhParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                     const mhCompletionYear = parseInt(mhExpireDate.substring(6,10)) - 3
-                    mhCompletionDate = mhExpireDate.substring(0,6) + mhCompletionYear
+                    mhCompletionDate = mhProvider.toLowerCase().includes('incomplete') ? '' : mhExpireDate.substring(0,6) + mhCompletionYear
                 } else{
                     displayMessage(1, 'Missing Moving and Handling (Practical)')
                 }
@@ -784,7 +785,7 @@ setTimeout(()=> {
                     epilepsyProvider = epilepsyParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                     epilepsyExpireDate = epilepsyParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                     const epilepsyCompletionYear = parseInt(epilepsyExpireDate.substring(6,10)) - 3
-                    epilepsyCompletionDate = epilepsyExpireDate.substring(0,6) + epilepsyCompletionYear
+                    epilepsyCompletionDate = epilepsyProvider.toLowerCase().includes('incomplete') ? '' : epilepsyExpireDate.substring(0,6) + epilepsyCompletionYear
                 } else{
                     displayMessage(1, 'Missing Epilepsy')
                 }
@@ -797,7 +798,7 @@ setTimeout(()=> {
                     countyProvider = countyParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                     countyExpireDate = countyParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                     const countyCompletionYear = parseInt(countyExpireDate.substring(6,10)) - 3
-                    countyCompletionDate = countyExpireDate.substring(0,6) + countyCompletionYear
+                    countyCompletionDate = countyProvider.toLowerCase().includes('incomplete') ? '' : countyExpireDate.substring(0,6) + countyCompletionYear
                 }                 
 
                 //Get the values for Child Sexual Exploitation
@@ -808,7 +809,7 @@ setTimeout(()=> {
                     cseProvider = cseParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                     cseExpireDate = cseParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                     const cseCompletionYear = parseInt(cseExpireDate.substring(6,10)) - 3
-                    cseCompletionDate = cseExpireDate.substring(0,6) + cseCompletionYear 
+                    cseCompletionDate = cseProvider.toLowerCase().includes('incomplete') ? '' : cseExpireDate.substring(0,6) + cseCompletionYear 
                 }                 
 
                 //Get the values for Substance Misuse
@@ -819,7 +820,7 @@ setTimeout(()=> {
                     substanceProvider = substanceParentCellArray[2].querySelector('.SummaryTableCellInner').innerText
                     substanceExpireDate = substanceParentCellArray[3].querySelector('.SummaryTableCellInner').innerText
                     const substanceCompletionYear = parseInt(substanceExpireDate.substring(6,10)) - 3
-                    substanceCompletionDate = substanceExpireDate.substring(0,6) + substanceCompletionYear
+                    substanceCompletionDate = substanceProvider.toLowerCase().includes('incomplete') ? '' : substanceExpireDate.substring(0,6) + substanceCompletionYear
                 } 
 
                 //Get the values for PMVA
@@ -1450,11 +1451,11 @@ setTimeout(()=> {
                                                 <td class="profile__secondColumn" >Pin Number:</td>
                                                 <td class="profile__thirdColumn">${nmcPin}</td>
                                             </tr>
-                                            <tr>
+                                            <tr contenteditable="true">
                                                 <td class="profile__secondColumn" >PIN Number seen and verified:</td>
                                                 <td class="profile__thirdColumn">${pinSeen.length > 7 ? 'Yes' : ''}</td>
                                             </tr>
-                                            <tr>
+                                            <tr contenteditable="true">
                                                 <td class="profile__secondColumn" >Date seen and verified:</td>
                                                 <td class="profile__thirdColumn">${pinSeen}</td>
                                             </tr>
