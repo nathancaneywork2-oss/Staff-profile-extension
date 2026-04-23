@@ -1600,6 +1600,7 @@ setTimeout(()=> {
             const profilePage = document.querySelector('.profile__page')
             if (profilePage) {
                 if (e.target.classList.contains('profile__s2Button') && !e.target.classList.contains('closeButton')) {
+                    
 
                     profilePage.classList.add('expanded')
                     profilePage.innerHTML = `
@@ -1675,13 +1676,13 @@ setTimeout(()=> {
                                     </tr>
                                     <tr>
                                         <td>${cplCompletionDate}</td>
-                                        <td>${cseCompletionDate}</td>
+                                        <td>${cseProvider.toLowerCase().includes('incomplete') ? cseProvider : cseCompletionDate}</td>
                                         <td>${PMVACompletionDate}</td>
-                                        <td>${substanceCompletionDate}</td>
+                                        <td>${substanceProvider.toLowerCase().includes('incomplete') ? substanceProvider : substanceCompletionDate}</td>
                                         <td>${plsCompletionDate}</td>
-                                        <td>${medCompletionDate}</td>
-                                        <td>${foodCompletionDate}</td>
-                                        <td>Learning disabilities - ${omCompletionDate}. County Lines and Knife Crime - ${countyCompletionDate}. Moving and Handling - ${mhCompletionDate}. Epilepsy Awareness ${epilepsyCompletionDate}. ${blsType} ${blsCompletionDate}.</td>
+                                        <td>${medProvider.toLowerCase().includes('incomplete') ? medProvider : medCompletionDate}</td>
+                                        <td>${foodProvider.toLowerCase().includes('incomplete') ? foodProvider : foodCompletionDate}</td>
+                                        <td>Learning disabilities - ${omCompletionDate}. County Lines and Knife Crime - ${countyProvider.toLowerCase().includes('incomplete') ? countyProvider : countyCompletionDate}. Moving and Handling - ${mhProvider.toLowerCase().includes('incomplete') ? mhProvider : mhCompletionDate}. Epilepsy Awareness ${epilepsyProvider.toLowerCase().includes('incomplete') ? epilepsyProvider : epilepsyCompletionDate}. ${blsType} ${blsCompletionDate}.</td>
                                     </tr>
                                 </tbody>
                             </table>
